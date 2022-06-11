@@ -14,8 +14,9 @@ let Info = {
     "version": "1.0.1"
 }
 
-async function main(bmpr) {
-    reload('./BMPR-Release/core/client').main(bmpr)
+async function main(bmpr,args) {
+    if (args != undefined) Info.reload = args
+    reload('./BMPR-Release/core/client').main(bmpr,Info)
 }
 
 module.exports = {

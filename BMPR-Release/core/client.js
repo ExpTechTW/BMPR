@@ -31,7 +31,7 @@ let Info = null
 let Config = null
 let BMPR = null
 
-async function main(bmpr) {
+async function main(bmpr,info) {
     BMPR = bmpr
     Config = await bmpr.Config.main()
     Console = bmpr.Console
@@ -40,7 +40,7 @@ async function main(bmpr) {
     Rely = bmpr.Rely
     User = bmpr.User
     Permission = bmpr.Permission
-    Info = bmpr.Info
+    Info = info
     client.login(Config["Bot.Token"])
 }
 
