@@ -118,7 +118,7 @@ async function Load() {
         }
         try {
             if (!list[index].includes(".js")) {
-                Function[list[index]] = await reload(`../../Plugin/lock/${list[index]}/index.js`)
+                Function[list[index]] = await reload(path.resolve(`./Plugin/lock/${list[index]}/index.js`))
                 let Info = JSON.parse(fs.readFileSync(path.resolve("./Plugin/lock/" + list[index] + "/BMPR.json")).toString())
                 Function[list[index]].Info = Info
                 if (fs.existsSync(path.resolve(`./Plugin/lock/${list[index]}/config.json`))) {
