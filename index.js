@@ -23,8 +23,7 @@ async function Reload(args) {
 }
 
 async function Main(args) {
-    if (args != undefined) Info.reload = args
-    bmpr.main(bmpr)
+    bmpr.main(bmpr,args)
 }
 
 async function Update() {
@@ -36,12 +35,11 @@ async function Update() {
             let text = await res.text()
             fs.writeFileSync(path.resolve("./BMPR.js"), text)
             const downloader = new Downloader({
-                url: "https://github.com/ExpTechTW/B-MPR/archive/refs/heads/Release.zip",
+                url: "https://github.com/ExpTechTW/BMPR/archive/refs/heads/Release.zip",
                 directory: "./",
             })
             try {
                 await downloader.download()
-                fs.unlinkSync("./BMPR-Release.zip")
                 const unzip = new zl.Unzip()
                 await unzip.extract("./BMPR-Release.zip", "./")
                 fs.unlinkSync("./BMPR-Release.zip")
