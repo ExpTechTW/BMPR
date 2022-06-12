@@ -3,6 +3,7 @@ let Handler = null
 let Time = null
 const fs = require('fs')
 const path = require("path")
+const fetch = require('node-fetch')
 
 let BMPR = null
 let c = null
