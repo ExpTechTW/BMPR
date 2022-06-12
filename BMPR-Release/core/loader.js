@@ -72,6 +72,18 @@ async function init(bmpr) {
     BMPR = bmpr
     Console = BMPR.Console
     Rely = BMPR.Rely
+    if (!fs.existsSync(path.resolve(`./Database/cache`))) {
+        fs.mkdirSync(`./Database/cache`)
+    }
+    if (!fs.existsSync(path.resolve(`./Database/data`))) {
+        fs.mkdirSync(`./Database/data`)
+    }
+    if (!fs.existsSync(path.resolve("./Plugin"))) {
+        fs.mkdirSync("./Plugin")
+    }
+    if (!fs.existsSync(path.resolve("./Plugin/lock"))) {
+        fs.mkdirSync("./Plugin/lock")
+    }
     let List = fs.readdirSync(path.resolve("./Plugin"))
     for (let index = 0; index < List.length; index++) {
         try {

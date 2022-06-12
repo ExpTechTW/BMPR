@@ -5,6 +5,7 @@ let User = null
 let Permission = null
 let Rely = null
 const { Client } = require('discord.js')
+const fetch = require('node-fetch')
 const client = new Client({
     intents: [
         'Guilds',

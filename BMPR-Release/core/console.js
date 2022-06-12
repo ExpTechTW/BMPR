@@ -89,6 +89,9 @@ async function main(msg, level, sender, fun, client) {
         }
     }
     let now = new Date()
+    if (!fs.existsSync(path.resolve(`./Database/log/`))) {
+        fs.mkdirSync(`./Database/log/`)
+    }
     if (!fs.existsSync(path.resolve(`./Database/log/${(now.getMonth() + 1)}`))) {
         fs.mkdirSync(path.resolve(`./Database/log/${(now.getMonth() + 1)}`))
     }
@@ -130,8 +133,8 @@ async function check() {
     }
 }
 
-async function clear(){
-    cache=-1
+async function clear() {
+    cache = -1
 }
 
 module.exports = {

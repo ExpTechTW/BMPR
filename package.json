@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "discord.js": "^14.0.0-dev.1654689812-1afae90",
+    "node-fetch": "^2.6.7",
     "nodejs-file-downloader": "^4.9.3",
     "require-reload": "^0.2.2",
     "zip-lib": "^0.7.3"
