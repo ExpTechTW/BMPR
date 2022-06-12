@@ -92,7 +92,7 @@ client.on('ready', async (client) => {
         await Console.main(`最新版本: ${last} 落後 最新版本 ${num} 個版本`, 3, "Core", "Client")
     }
     await Console.main(`BMPR 版本: ${Info.version} | 目前登入身份: ${client.user.tag} | 群組數量: ${client.guilds.cache.size}`, 2, "Core", "Client")
-    let info=JSON.parse(fs.readFileSync(path.resolve("./Database/cache/info.tmp")).toString())
+    let info = JSON.parse(fs.readFileSync(path.resolve("./Database/cache/info.tmp")).toString())
     await Console.main(`主線程 PID: ${info.PID} | 副線程 PID: ${info.pid}`, 2, "Core", "Client")
 })
 

@@ -21,6 +21,7 @@ let WatchdogL = {
 }
 let Config = {}
 let BMPR = null
+let Client = null
 
 async function PluginUnload(Plugin) {
     for (let index = 0; index < list.length; index++) {
@@ -38,12 +39,15 @@ async function PluginLoad(Plugin) {
     let LIST = fs.readdirSync(path.resolve("./Plugin/lock"))
     for (let index = 0; index < LIST.length; index++) {
         if (Plugin.includes(LIST[index])) {
+            await PluginLoading(LIST[index])
+            Function[LIST[index]].init(BMPR)
+            Function[LIST[index]].ready(Client)
             await Console.main(`${LIST[index]} 插件 已加載`, 3, "Core", "Loader")
             if (!list.includes(LIST[index])) list.push(LIST[index])
             return
         }
     }
-    await Console.main(`未發現 ${list[index]} 插件`, 3, "Core", "Loader")
+    await Console.main(`未發現 ${Plugin} 插件`, 3, "Core", "Loader")
     return
 }
 
@@ -52,17 +56,22 @@ setInterval(async () => {
         let Event = Object.keys(WatchdogL)[index]
         for (let Index = 0; Index < Object.keys(WatchdogL[Event]).length; Index++) {
             let Plugin = Object.keys(WatchdogL[Event])[Index]
-            if (new Date().getTime() - WatchdogL[Event][Plugin] > 5000) {
-                delete WatchdogL[Event][Plugin]
-                if (!Plugin.includes(".js")) {
-                    Function[Plugin] = await reload(`../../Plugin/lock/${Plugin}/index.js`)
-                    let Info = JSON.parse(fs.readFileSync(path.resolve("./Plugin/lock/" + Plugin + "/info.json")).toString())
-                    Function[Plugin].Info = Info
-                    await Console.main(`${Plugin} Watchdog 已重載 Package | 版本: ${Info.version}`, 3, "Core", "Loader")
-                } else {
-                    Function[Plugin] = reload(`../../Plugin/lock/${Plugin}`)
-                    await Console.main(`${Plugin} Watchdog 已重載 Single | 版本: ${Info.version}`, 3, "Core", "Loader")
+            try {
+                if (new Date().getTime() - WatchdogL[Event][Plugin] > 5000) {
+                    delete WatchdogL[Event][Plugin]
+                    await now(Plugin)
+                    if (!Plugin.includes(".js")) {
+                        Function[Plugin] = await reload(`../../Plugin/lock/${Plugin}/index.js`)
+                        let Info = JSON.parse(fs.readFileSync(path.resolve("./Plugin/lock/" + Plugin + "/info.json")).toString())
+                        Function[Plugin].Info = Info
+                        await Console.main(`${Plugin} Watchdog 已重載 Package | 版本: ${Info.version}`, 3, "Core", "Loader")
+                    } else {
+                        Function[Plugin] = reload(`../../Plugin/lock/${Plugin}`)
+                        await Console.main(`${Plugin} Watchdog 已重載 Single | 版本: ${Info.version}`, 3, "Core", "Loader")
+                    }
                 }
+            } catch (error) {
+                await Console.main(`${Plugin} Watchdog Reload Error`, 4, "Core", "Loader")
             }
         }
     }
@@ -94,12 +103,17 @@ async function init(bmpr) {
     await Load()
     await RelyCheck()
     await BMPR.Help.init(Function, list, await BMPR.Config.main())
+    await Init()
+}
+
+async function Init() {
     for (let index = 0; index < list.length; index++) {
         try {
             let Info = Function[list[index]].Info
             if (Info.events.includes("init")) {
+                await now(list[index])
                 WatchdogL["init"][list[index]] = new Date().getTime()
-                await Function[list[index]].init()
+                await Function[list[index]].init(BMPR)
                 await Console.main(`${list[index]} init`, 1, "Core", "Loader")
                 delete WatchdogL["init"][list[index]]
             }
@@ -109,41 +123,57 @@ async function init(bmpr) {
     }
 }
 
-async function Load() {
+async function Load(args) {
     list = fs.readdirSync(path.resolve("./Plugin/lock"))
+    if (fs.existsSync(path.resolve("./Database/cache/crash.tmp"))) {
+        fs.unlinkSync(path.resolve("./Database/cache/crash.tmp"))
+        let plugin = fs.readFileSync(path.resolve("./Database/cache/plugin.tmp"))
+        list.splice(list.indexOf(plugin), 1)
+        await Console.main(`${plugin} 插件 崩潰 已暫時卸載\n使用 bmpr plugin load ${plugin} 重新加載`, 4, "Core", "Loader")
+    }
     for (let index = 0; index < list.length; index++) {
         if (list[index].includes(".zip") || list[index].includes(".bmpr")) {
             fs.unlinkSync(path.resolve("./Plugin/lock/" + list[index]))
             continue
         }
-        try {
-            if (!list[index].includes(".js")) {
-                Function[list[index]] = await reload(path.resolve(`./Plugin/lock/${list[index]}/index.js`))
-                let Info = JSON.parse(fs.readFileSync(path.resolve("./Plugin/lock/" + list[index] + "/BMPR.json")).toString())
-                Function[list[index]].Info = Info
-                if (fs.existsSync(path.resolve(`./Plugin/lock/${list[index]}/config.json`))) {
-                    if (!fs.existsSync(path.resolve(`./Database/config/${list[index]}.json`))) {
-                        fs.copyFileSync(path.resolve(`./Plugin/lock/${list[index]}/config.json`), path.resolve(`./Database/config/${list[index]}.json`))
-                    } else {
-                        Config[index] = JSON.parse(fs.readFileSync(path.resolve(`./Database/config/${list[index]}.json`)).toString())
-                    }
+        await PluginLoading(list[index])
+    }
+    if (args != undefined) {
+        await Init()
+        await ready(Client)
+    }
+    return
+}
+
+async function PluginLoading(plugin) {
+    try {
+        await now(plugin)
+        if (!plugin.includes(".js")) {
+            Function[plugin] = await reload(path.resolve(`./Plugin/lock/${plugin}/index.js`))
+            let Info = JSON.parse(fs.readFileSync(path.resolve("./Plugin/lock/" + plugin + "/BMPR.json")).toString())
+            Function[plugin].Info = Info
+            if (fs.existsSync(path.resolve(`./Plugin/lock/${plugin}/config.json`))) {
+                if (!fs.existsSync(path.resolve(`./Database/config/${plugin}.json`))) {
+                    fs.copyFileSync(path.resolve(`./Plugin/lock/${plugin}/config.json`), path.resolve(`./Database/config/${plugin}.json`))
+                } else {
+                    Config[index] = JSON.parse(fs.readFileSync(path.resolve(`./Database/config/${plugin}.json`)).toString())
                 }
-                await Console.main(`${list[index]} 已加載 Package 插件 | 版本: ${Info.version}`, 1, "Core", "Loader")
-            } else {
-                Function[list[index]] = reload(`../../Plugin/lock/${list[index]}`)
-                if (Function[list[index]].config != undefined) {
-                    if (!fs.existsSync(path.resolve(`./Database/config/${list[index].replace(".js", "")}.json`))) {
-                        fs.writeFileSync(path.resolve(`./Database/config/${list[index].replace(".js", "")}.json`), JSON.stringify(Function[list[index]].config))
-                    } else {
-                        Config[index] = JSON.parse(fs.readFileSync(path.resolve(`./Database/config/${list[index].replace(".js", "")}.json`)).toString())
-                    }
-                }
-                await Console.main(`${list[index]} 已加載 Single 插件 | 版本: ${Info.version}`, 1, "Core", "Loader")
             }
-        } catch (error) {
-            await Console.main(`${list[index]} 加載 錯誤 >> ${error}`, 4, "Core", "Loader")
-            list.splice(index, 1)
+            await Console.main(`${plugin} 已加載 Package 插件 | 版本: ${Info.version}`, 1, "Core", "Loader")
+        } else {
+            Function[plugin] = reload(`../../Plugin/lock/${plugin}`)
+            if (Function[plugin].config != undefined) {
+                if (!fs.existsSync(path.resolve(`./Database/config/${plugin.replace(".js", "")}.json`))) {
+                    fs.writeFileSync(path.resolve(`./Database/config/${plugin.replace(".js", "")}.json`), JSON.stringify(Function[plugin].config))
+                } else {
+                    Config[index] = JSON.parse(fs.readFileSync(path.resolve(`./Database/config/${plugin.replace(".js", "")}.json`)).toString())
+                }
+            }
+            await Console.main(`${plugin} 已加載 Single 插件 | 版本: ${Info.version}`, 1, "Core", "Loader")
         }
+    } catch (error) {
+        await Console.main(`${plugin} 加載 錯誤 >> ${error}`, 4, "Core", "Loader")
+        list.splice(index, 1)
     }
     return
 }
@@ -160,10 +190,12 @@ async function RelyCheck() {
 }
 
 async function ready(client) {
+    Client = client
     for (let index = 0; index < list.length; index++) {
         try {
             let Info = Function[list[index]].Info
             if (Info.events.includes("ready")) {
+                await now(list[index])
                 WatchdogL["ready"][list[index]] = new Date().getTime()
                 await Function[list[index]].ready(client)
                 await Console.main(`${list[index]} ready`, 1, "Core", "Loader")
@@ -180,6 +212,7 @@ async function messageCreate(message) {
         try {
             let Info = Function[list[index]].Info
             if (Info.events.includes("messageCreate")) {
+                await now(list[index])
                 WatchdogL["messageCreate"][list[index]] = new Date().getTime()
                 await Function[list[index]].messageCreate(message)
                 await Console.main(`${list[index]} messageCreate`, 0, "Core", "Loader")
@@ -196,6 +229,7 @@ async function messageReactionAdd(reaction, user) {
         try {
             let Info = Function[list[index]].Info
             if (Info.events.includes("messageReactionAdd")) {
+                await now(list[index])
                 WatchdogL["messageReactionAdd"][list[index]] = new Date().getTime()
                 await Function[list[index]].messageReactionAdd(reaction, user)
                 await Console.main(`${list[index]} messageReactionAdd`, 0, "Core", "Loader")
@@ -212,6 +246,7 @@ async function messageReactionRemove(reaction, user) {
         try {
             let Info = Function[list[index]].Info
             if (Info.events.includes("messageReactionRemove")) {
+                await now(list[index])
                 WatchdogL["messageReactionRemove"][list[index]] = new Date().getTime()
                 await Function[list[index]].messageReactionRemove(reaction, user)
                 await Console.main(`${list[index]} messageReactionRemove`, 0, "Core", "Loader")
@@ -228,6 +263,7 @@ async function channelCreate(channel) {
         try {
             let Info = Function[list[index]].Info
             if (Info.events.includes("channelCreate")) {
+                await now(list[index])
                 WatchdogL["channelCreate"][list[index]] = new Date().getTime()
                 await Function[list[index]].channelCreate(channel)
                 await Console.main(`${list[index]} channelCreate`, 0, "Core", "Loader")
@@ -244,6 +280,7 @@ async function channelDelete(channel) {
         try {
             let Info = Function[list[index]].Info
             if (Info.events.includes("channelDelete")) {
+                await now(list[index])
                 WatchdogL["channelDelete"][list[index]] = new Date().getTime()
                 await Function[list[index]].channelDelete(channel)
                 await Console.main(`${list[index]} channelDelete`, 0, "Core", "Loader")
@@ -260,6 +297,7 @@ async function messageDelete(message) {
         try {
             let Info = Function[list[index]].Info
             if (Info.events.includes("messageDelete")) {
+                await now(list[index])
                 WatchdogL["messageDelete"][list[index]] = new Date().getTime()
                 await Function[list[index]].messageDelete(message)
                 await Console.main(`${list[index]} messageDelete`, 0, "Core", "Loader")
@@ -276,6 +314,7 @@ async function messageUpdate(message) {
         try {
             let Info = Function[list[index]].Info
             if (Info.events.includes("messageUpdate")) {
+                await now(list[index])
                 WatchdogL["messageUpdate"][list[index]] = new Date().getTime()
                 await Function[list[index]].messageUpdate(message)
                 await Console.main(`${list[index]} messageUpdate`, 0, "Core", "Loader")
@@ -285,6 +324,10 @@ async function messageUpdate(message) {
             await Console.main(`${list[index]} messageUpdate 錯誤 >> ${error}`, 4, "Core", "Loader")
         }
     }
+}
+
+async function now(plugin) {
+    fs.writeFileSync(path.resolve("./Database/cache/plugin.tmp"), plugin)
 }
 
 module.exports = {

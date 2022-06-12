@@ -24,8 +24,12 @@ async function main() {
     Main.stdout.on('data', (data) => {
         console.log(data.replaceAll("\n", ""))
     })
-    Main.on('error', function (err) {
-        console.log('Main error', err)
+    Main.stdout.on('error', (data) => {
+        console.log(data.replaceAll("\n", ""))
+    })
+    Main.stderr.on('data', (data) => {
+        fs.writeFileSync(path.resolve("./Database/cache/crash.tmp"),"")
+        console.log(`${data}`)
     })
     Main.on('close', function (err) {
         let list = fs.readdirSync(path.resolve("./Database/cache"))
@@ -33,7 +37,7 @@ async function main() {
             fs.unlinkSync(path.resolve("./Database/cache/reload.tmp"))
             fs.writeFileSync(path.resolve("./Database/cache/Reload.tmp"), "")
             main()
-        }else{
+        } else {
             process.exit(0)
         }
     })
