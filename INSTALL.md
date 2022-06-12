@@ -30,7 +30,7 @@
 
 ## 啟動
 - 在 `Database/config/BMPR.json` 設定 `Bot.Token` `Bot.Console` 基本參數
-- 啟動 機器人 後 請在 console 使用 `bmpr upgrade` ' 將 機器人 升級至最新版本
+- 啟動 機器人 後 請在 console 使用 `bmpr upgrade` 將 機器人 升級至最新版本
 
 ## 錯誤
 #### 未放入 機器人 Token
