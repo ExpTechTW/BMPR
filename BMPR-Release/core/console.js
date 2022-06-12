@@ -3,7 +3,7 @@ let Handler = null
 let Time = null
 const fs = require('fs')
 const path = require("path")
-const fetch=require('node-fetch')
+const fetch = require('node-fetch')
 
 let BMPR = null
 let c = null
@@ -140,14 +140,18 @@ async function clear() {
 }
 
 setInterval(async () => {
-    const res = await fetch('https://api.github.com/repos/ExpTechTW/BMPR/releases')
-    const data = await res.json()
-    if (update == null) {
-        update = data[0]["tag_name"]
-    } else if (update != data[0]["tag_name"]) {
-        main(`BMPR 新版本!\n\n${data[0]["tag_name"]}\n更新日誌\n${data[0]["body"]}`, 2, "Core", "Console")
+    try {
+        const res = await fetch('https://api.github.com/repos/ExpTechTW/BMPR/releases')
+        const data = await res.json()
+        if (update == null) {
+            update = data[0]["tag_name"]
+        } else if (update != data[0]["tag_name"]) {
+            main(`BMPR 新版本!\n\n${data[0]["tag_name"]}\n更新日誌\n${data[0]["body"]}`, 2, "Core", "Console")
+        }
+    } catch (error) {
+
     }
-}, 60000)
+}, 600000)
 
 module.exports = {
     init,
