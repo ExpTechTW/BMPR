@@ -12,8 +12,9 @@
 - [合作](#合作)
 
 ## 文檔
-- [安裝]()
+- [安裝](https://github.com/ExpTechTW/BMPR/blob/Release/INSTALL.md)
 - [插件開發](https://github.com/ExpTechTW/BMPR/blob/Release/DEVELOPER.md)
+- [插件列表]()
 
 ## 貢獻者
 - whes1015 `程式開發` `文檔`
