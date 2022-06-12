@@ -23,9 +23,8 @@ async function Main(args) {
 
 async function Update() {
     setInterval(async () => {
-        let list = fs.readdirSync(path.resolve(""))
+        let list = fs.readdirSync(path.resolve("./Database/cache"))
         if (list.includes("update.tmp")) {
-            fs.unlinkSync(path.resolve("./update.tmp"))
             let res = await fetch("https://raw.githubusercontent.com/ExpTechTW/BMPR/Release/BMPR.js")
             let text = await res.text()
             fs.writeFileSync(path.resolve("./BMPR.js"), text)
@@ -41,7 +40,6 @@ async function Update() {
             } catch (error) {
                 console.log("Download failed", error)
             }
-            fs.writeFileSync(path.resolve("./Database/cache/update.tmp"), "")
             fs.writeFileSync(path.resolve("./Database/cache/reload.tmp"), "")
         }
     }, 1000)
