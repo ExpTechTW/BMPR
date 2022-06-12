@@ -13,7 +13,10 @@ async function init(bmpr) {
 
 async function main(msg) {
     if (msg.startsWith("bmpr upgrade")) fs.writeFileSync(path.resolve("./Database/cache/update.tmp"), "")
-    if (msg.startsWith("bmpr reload")) process.exit(0)
+    if (msg.startsWith("bmpr reload")){
+        fs.writeFileSync(path.resolve("./Database/cache/reload.tmp"), "")
+        process.exit(0)
+    } 
     if (msg.startsWith("bmpr plugin")) {
         if (msg.startsWith("bmpr plugin unload")) await Loader.PluginUnload(msg.replace("bmpr plugin unload ", ""))
         if (msg.startsWith("bmpr plugin load")) await Loader.PluginLoad(msg.replace("bmpr plugin load ", ""))

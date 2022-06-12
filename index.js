@@ -28,9 +28,14 @@ async function main() {
         console.log('Main error', err)
     })
     Main.on('close', function (err) {
-        fs.writeFileSync(path.resolve("./Database/cache/Reload.tmp"), "")
-        Main = null
-        main()
+        let list = fs.readdirSync(path.resolve("./Database/cache"))
+        if (list.includes("reload.tmp")) {
+            fs.unlinkSync(path.resolve("./Database/cache/reload.tmp"))
+            fs.writeFileSync(path.resolve("./Database/cache/Reload.tmp"), "")
+            main()
+        }else{
+            process.exit(0)
+        }
     })
     process.stdin.on('readable', () => {
         let chunk
