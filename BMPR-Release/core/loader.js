@@ -71,6 +71,7 @@ setInterval(async () => {
                     }
                 }
             } catch (error) {
+                list.splice(list.indexOf(Plugin), 1)
                 await Console.main(`${Plugin} Watchdog Reload Error`, 4, "Core", "Loader")
             }
         }
@@ -175,7 +176,7 @@ async function PluginLoading(plugin) {
         }
     } catch (error) {
         await Console.main(`${plugin} 加載 錯誤 >> ${error}`, 4, "Core", "Loader")
-        list.splice(index, 1)
+        list.splice(list.indexOf(plugin), 1)
     }
     return
 }
