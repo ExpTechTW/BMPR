@@ -17,7 +17,7 @@ async function main(plugin) {
         return msg
     } else {
         if (plugin == "BMPR") {
-            return "**BMPR**\nbmpr upgrade | BMPR 升級\nbmpr reload | BMPR 重載\nbmpr plugin load <插件>| 加載 插件\nbmpr plugin unload <插件>| 卸載 插件\nbmpr plugin reloadall | 重載 全部 插件\nbmpr permission set <名稱/ID> | 設定權限"
+            return "**BMPR**\nbmpr upgrade | BMPR 升級\nbmpr reload | BMPR 重載\nbmpr plugin load <插件> | 加載 插件\nbmpr plugin unload <插件> | 卸載 插件\nbmpr plugin reloadall | 重載 全部 插件\nbmpr permission set <名稱/ID> | 設定權限"
         }
         for (let index = 0; index < List.length; index++) {
             let msg = ""

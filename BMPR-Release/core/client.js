@@ -6,6 +6,8 @@ let Permission = null
 let Rely = null
 const { Client } = require('discord.js')
 const fetch = require('node-fetch')
+const fs = require('fs')
+const path = require('path')
 const client = new Client({
     intents: [
         'Guilds',
@@ -47,16 +49,12 @@ async function main(bmpr, info) {
 
 client.on('ready', async (client) => {
     await Console.init(client, Config, BMPR)
+    let list = fs.readdirSync(path.resolve("./Database/cache/"))
+    if (list.includes("update.tmp")) {
+        fs.unlinkSync(path.resolve("./Database/cache/update.tmp"))
+        await Console.main("更新完成", 2, "Core", "Update")
+    }
     if (Info.reload != undefined) {
-        if (Info.reload == "Reload from Update") {
-            await Console.main("正在下載 更新包...", 3, "Core", "Update")
-            await Console.main("更新包 下載完成", 3, "Core", "Update")
-            await Console.main("正在解壓縮 更新包...", 3, "Core", "Update")
-            await Console.main("更新包 解壓縮完成", 3, "Core", "Update")
-            await Console.main("已套用 更新包", 3, "Core", "Update")
-            await Console.main("已刪除 更新包", 3, "Core", "Update")
-            await Console.main("更新完成", 2, "Core", "Update")
-        }
         await Console.main(Info.reload, 3, "Main", "Main")
     }
     delete Info.reload
@@ -94,6 +92,8 @@ client.on('ready', async (client) => {
         await Console.main(`最新版本: ${last} 落後 最新版本 ${num} 個版本`, 3, "Core", "Client")
     }
     await Console.main(`BMPR 版本: ${Info.version} | 目前登入身份: ${client.user.tag} | 群組數量: ${client.guilds.cache.size}`, 2, "Core", "Client")
+    let info=JSON.parse(fs.readFileSync(path.resolve("./Database/cache/info.tmp")).toString())
+    await Console.main(`主線程 PID: ${info.PID} | 副線程 PID: ${info.pid}`, 2, "Core", "Client")
 })
 
 client.on('messageCreate', async message => {
