@@ -12,12 +12,12 @@
 - BMPR 與 MPR 有著非常大的不同，BMPR 允許插件有多個檔案，而 MPR 僅能有一個，此外，插件的加載方式也有所改變，棄用了 Hot Loading，提升插件穩定性。
 ```
 插件文件結構
-|── /JavaScript | JavaScript 文件夾
+|── /JavaScript/ | JavaScript 文件夾
 │  ├── Time.js | 獲取時間功能
 │  └── Count.js | 數學計算功能
-│── /index.js | 入口點
-│── /config.json | 插件自己的配置文件
-└── /BMPR.json | BMPR 插件 基本資訊
+│── index.js | 入口點
+│── config.json | 插件自己的配置文件
+└── BMPR.json | BMPR 插件 基本資訊
 ```
 - `index.js` 插件從此處被加載
 - `config` 插件自己的 config ，如果插件須提供自定義功能，才創建此文件
