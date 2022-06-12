@@ -31,7 +31,7 @@ let Info = null
 let Config = null
 let BMPR = null
 
-async function main(bmpr,info) {
+async function main(bmpr, info) {
     BMPR = bmpr
     Config = await bmpr.Config.main()
     Console = bmpr.Console
@@ -96,17 +96,15 @@ client.on('ready', async (client) => {
 })
 
 client.on('messageCreate', async message => {
-    try {
-        if (message.channel.id == Config["Bot.Console"]) {
-            if (message.author.id != client.user.id) await Console.clear()
-            if (message.content.startsWith("bmpr")) Handler.main(message.content)
-        }
-        await Loader.messageCreate(message)
-        await User.main(message.author)
-        await Permission.main(message.author)
-    } catch (error) {
-
+    if (message.channel.id == Config["Bot.Console"]) {
+        if (message.author.id != client.user.id) await Console.clear()
+        if (message.content.startsWith("bmpr")) Handler.main(message.content)
     }
+    await Loader.messageCreate(message)
+    await User.main(message.author)
+    await Permission.main(message.author)
+    if (message.content == `${Config["Prefix"]}help`) message.reply(">>> " + await BMPR.Help.main())
+    if (message.content.startsWith(`${Config["Prefix"]}help `)) message.reply(">>> " + await BMPR.Help.main(message.content.replace(`${Config["Prefix"]}help `, "")))
 })
 
 client.on('messageReactionAdd', async (reaction, user) => {

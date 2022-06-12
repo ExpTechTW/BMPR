@@ -1,3 +1,6 @@
+const fs = require('fs')
+const path = require('path')
+
 let BMPR = null
 let Console = null
 
