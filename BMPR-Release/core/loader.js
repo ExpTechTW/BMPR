@@ -31,7 +31,7 @@ async function PluginUnload(Plugin) {
             return
         }
     }
-    await Console.main(`未發現 ${list[index]} 插件`, 3, "Core", "Loader")
+    await Console.main(`未發現 ${Plugin} 插件`, 3, "Core", "Loader")
     return
 }
 
