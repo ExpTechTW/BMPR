@@ -127,9 +127,11 @@ async function Load(args) {
     list = fs.readdirSync(path.resolve("./Plugin/lock"))
     if (fs.existsSync(path.resolve("./Database/cache/crash.tmp"))) {
         fs.unlinkSync(path.resolve("./Database/cache/crash.tmp"))
-        let plugin = fs.readFileSync(path.resolve("./Database/cache/plugin.tmp"))
-        list.splice(list.indexOf(plugin), 1)
-        await Console.main(`${plugin} 插件 崩潰 已暫時卸載\n使用 bmpr plugin load ${plugin} 重新加載`, 4, "Core", "Loader")
+        if (fs.existsSync(path.resolve("./Database/cache/plugin.tmp"))) {
+            let plugin = fs.readFileSync(path.resolve("./Database/cache/plugin.tmp"))
+            list.splice(list.indexOf(plugin), 1)
+            await Console.main(`${plugin} 插件 崩潰 已暫時卸載\n使用 bmpr plugin load ${plugin} 重新加載`, 4, "Core", "Loader")
+        }
     }
     for (let index = 0; index < list.length; index++) {
         if (list[index].includes(".zip") || list[index].includes(".bmpr")) {
