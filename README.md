@@ -1,17 +1,22 @@
-# 模板
+# BMPR
 <img alt="Discord" src="https://img.shields.io/discord/926545182407688273">
 
 ------
 
-- 這是一個 ExpTech Github 模板
+- Better Multifunctional Plugin Robot
 
 ## 索引
+- [文檔](#文檔)
 - [貢獻者](#貢獻者)
 - [發佈規則](#發佈規則)
 - [合作](#合作)
 
+## 文檔
+- [安裝]()
+- [插件開發](https://github.com/ExpTechTW/BMPR/blob/Release/DEVELOPER.md)
+
 ## 貢獻者
-- whes1015 `文檔`
+- whes1015 `程式開發` `文檔`
 
 ------
 
