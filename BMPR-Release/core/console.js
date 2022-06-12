@@ -10,6 +10,7 @@ let cache = -1
 let msgID = 0
 let body = ""
 let Config = null
+let update = null
 
 async function init(client, config, bmpr) {
     BMPR = bmpr
@@ -136,6 +137,16 @@ async function check() {
 async function clear() {
     cache = -1
 }
+
+setInterval(async () => {
+    const res = await fetch('https://api.github.com/repos/ExpTechTW/BMPR/releases')
+    const data = await res.json()
+    if (update == null) {
+        update = data[0]["tag_name"]
+    } else if (update != data[0]["tag_name"]) {
+        main(`BMPR 新版本!\n\n${data[0]["tag_name"]}\n更新日誌\n${data[0]["body"]}`, 2, "Core", "Console")
+    }
+}, 60000)
 
 module.exports = {
     init,

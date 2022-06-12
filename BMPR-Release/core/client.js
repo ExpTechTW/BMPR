@@ -65,7 +65,7 @@ client.on('ready', async (client) => {
     await Permission.init(BMPR)
     await Handler.init(BMPR)
     await Loader.ready(client)
-    client.user.setActivity(`Powered by ExpTech\n使用 ${Config["Prefix"]}help 了解更多`)
+    client.user.setActivity(`${Config["Prefix"]}help | Powered by ExpTech`)
     const res = await fetch('https://api.github.com/repos/ExpTechTW/BMPR/releases')
     const data = await res.json()
     let num = 0
