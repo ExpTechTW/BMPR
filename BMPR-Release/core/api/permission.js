@@ -1,3 +1,5 @@
+const fs = require('fs')
+
 let BMPR = null
 let Console = null
 
