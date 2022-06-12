@@ -1,63 +1,47 @@
-const reload = require('require-reload')(require)
+const child_process = require("child_process")
+const path = require('path')
 const fs = require('fs')
-const path = require("path")
-const Downloader = require("nodejs-file-downloader")
-const zl = require("zip-lib")
-const fetch = require('node-fetch')
 
-let bmpr = reload('./BMPR')
-Main()
-Clock()
-Update()
+let Main = null
 
-process.stdin.on('data', async data => {
-    data = `\n${data}`
-    data = data.replaceAll("\n", "")
-    if (data.startsWith("bmpr reload")) {
-        Reload("Reload from Console")
+if (!fs.existsSync(path.resolve(`./Database/cache`))) {
+    fs.mkdirSync(`./Database/cache`)
+}
+if (!fs.existsSync(path.resolve(`./Database/data`))) {
+    fs.mkdirSync(`./Database/data`)
+}
+if (!fs.existsSync(path.resolve("./Plugin"))) {
+    fs.mkdirSync("./Plugin")
+}
+if (!fs.existsSync(path.resolve("./Plugin/lock"))) {
+    fs.mkdirSync("./Plugin/lock")
+}
+
+main()
+
+async function main() {
+    Main = child_process.exec(`cd ${path.resolve("")} & node run.js`)
+    Main.stdout.on('data', (data) => {
+        console.log(data.replaceAll("\n", ""))
+    })
+    Main.on('error', function (err) {
+        console.log('Main error', err)
+    })
+    Main.on('close', function (err) {
+        fs.writeFileSync(path.resolve("./Database/cache/Reload.tmp"), "")
+        Main = null
+        main()
+    })
+    process.stdin.on('readable', () => {
+        let chunk
+        while ((chunk = process.stdin.read()) !== null) {
+            Main.stdin.write(chunk)
+        }
+    })
+    let info = {
+        PID: process.pid,
+        pid: Main.pid,
+        platform: process.platform
     }
-})
-
-async function Reload(args) {
-    bmpr = reload('./BMPR')
-    setTimeout(() => { Main(args) }, 1000)
-}
-
-async function Main(args) {
-    bmpr.main(bmpr, args)
-}
-
-async function Update() {
-    setInterval(async () => {
-        let list = fs.readdirSync(path.resolve(""))
-        if (list.includes("update.tmp")) {
-            fs.unlinkSync(path.resolve("./update.tmp"))
-            let res = await fetch("https://raw.githubusercontent.com/ExpTechTW/BMPR/Release/BMPR.js")
-            let text = await res.text()
-            //fs.writeFileSync(path.resolve("./BMPR.js"), text)
-            const downloader = new Downloader({
-                url: "https://github.com/ExpTechTW/BMPR/archive/refs/heads/Release.zip",
-                directory: "./",
-            })
-            try {
-                await downloader.download()
-                const unzip = new zl.Unzip()
-                await unzip.extract("./BMPR-Release.zip", path.resolve(""))
-                fs.unlinkSync("./BMPR-Release.zip")
-            } catch (error) {
-                console.log("Download failed", error)
-            }
-            Reload("Reload from Update")
-        }
-    }, 1000)
-}
-
-async function Clock() {
-    setInterval(async () => {
-        let list = fs.readdirSync(path.resolve(""))
-        if (list.includes("reload.tmp")) {
-            fs.unlinkSync(path.resolve("./reload.tmp"))
-            Reload("Reload from Clock")
-        }
-    }, 1000)
+    fs.writeFileSync(path.resolve("./Database/cache/info.tmp"), JSON.stringify(info))
 }

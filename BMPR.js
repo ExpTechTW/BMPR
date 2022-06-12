@@ -11,7 +11,7 @@ const Rely = reload('./BMPR-Release/BMPR-Release/core/api/rely')
 const Permission = reload('./BMPR-Release/BMPR-Release/core/api/permission')
 
 let Info = {
-    "version": "1.0.1"
+    "version": "1.0.0"
 }
 
 async function main(bmpr,args) {
