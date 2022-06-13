@@ -28,7 +28,8 @@ async function main() {
         console.log(data.replaceAll("\n", ""))
     })
     Main.stderr.on('data', (data) => {
-        fs.writeFileSync(path.resolve("./Database/cache/crash.tmp"),"")
+        fs.writeFileSync(path.resolve("./Database/cache/crash.tmp"), "")
+        fs.writeFileSync(path.resolve("./Database/cache/Crash.tmp"), data)
         console.log(`${data}`)
     })
     Main.on('close', function (err) {
