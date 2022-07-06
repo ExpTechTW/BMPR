@@ -33,6 +33,7 @@ const client = new Client({
 let Info = null
 let Config = null
 let BMPR = null
+let Check = false
 
 async function main(bmpr, info) {
     BMPR = bmpr
@@ -48,6 +49,7 @@ async function main(bmpr, info) {
 }
 
 client.on('ready', async (client) => {
+    BMPR.client = client
     await Console.init(client, Config, BMPR)
     let list = fs.readdirSync(path.resolve("./Database/cache/"))
     if (list.includes("update.tmp")) {
@@ -94,9 +96,11 @@ client.on('ready', async (client) => {
     } else {
         await Console.main(`最新版本: ${last} 落後 最新版本 ${num} 個版本`, 3, "Core", "Client")
     }
+    Check = true
 })
 
 client.on('messageCreate', async message => {
+    if (!Check) return
     if (message.channel.id == Config["Bot.Console"]) {
         if (message.author.id != client.user.id) await Console.clear()
         if (message.content.startsWith("bmpr")) Handler.main(message.content)
@@ -109,26 +113,32 @@ client.on('messageCreate', async message => {
 })
 
 client.on('messageReactionAdd', async (reaction, user) => {
+    if (!Check) return
     await Loader.messageReactionAdd(reaction, user)
 })
 
 client.on('messageReactionRemove', async (reaction, user) => {
+    if (!Check) return
     await Loader.messageReactionRemove(reaction, user)
 })
 
 client.on("channelCreate", async channel => {
+    if (!Check) return
     await Loader.channelCreate(channel)
 })
 
 client.on("channelDelete", async channel => {
+    if (!Check) return
     await Loader.channelDelete(channel)
 })
 
 client.on("messageDelete", async (message) => {
+    if (!Check) return
     await Loader.messageDelete(message)
 })
 
 client.on("messageUpdate", async (Old, New) => {
+    if (!Check) return
     await Loader.messageUpdate(Old, New)
 })
 
