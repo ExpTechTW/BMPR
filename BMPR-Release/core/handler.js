@@ -14,6 +14,7 @@ async function init(bmpr) {
 async function main(msg) {
     if (msg.startsWith("bmpr upgrade")) fs.writeFileSync(path.resolve("./Database/cache/update.tmp"), "")
     if (msg.startsWith("bmpr reload")){
+        fs.unlinkSync(path.resolve("./Database/cache/crash.tmp"))
         fs.writeFileSync(path.resolve("./Database/cache/reload.tmp"), "")
         process.exit(0)
     } 
