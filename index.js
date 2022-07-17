@@ -21,16 +21,16 @@ main()
 
 async function main() {
     Main = child_process.exec(`cd ${path.resolve("")} & node run.js`)
-    Main.stdout.on('data', (data) => {
+    Main.stdout.on('data', async (data) => {
         console.log(data.replaceAll("\n", ""))
     })
-    Main.stdout.on('error', (data) => {
-        console.log(data.replaceAll("\n", ""))
+    Main.stdout.on('error', async (data) => {
+        console.log("\x1b[31m" + `[Thread][${await Simple()}][Main]: ${data.replaceAll("\n", "")}` + "\x1b[0m")
     })
-    Main.stderr.on('data', (data) => {
-        fs.writeFileSync(path.resolve("./Database/cache/crash.tmp"), "")
-        fs.writeFileSync(path.resolve("./Database/cache/Crash.tmp"), data)
-        console.log(`${data}`)
+    Main.stderr.on('data', async (data) => {
+        if (!data.includes("^C")) fs.writeFileSync(path.resolve("./Database/cache/crash.tmp"), "")
+        fs.writeFileSync(path.resolve("./Database/cache/Crash.log"), data)
+        console.log("\x1b[31m" + `[Thread][${await Simple()}][Main]: ${data}` + "\x1b[0m")
     })
     Main.on('close', function (err) {
         let list = fs.readdirSync(path.resolve("./Database/cache"))
@@ -54,4 +54,12 @@ async function main() {
         platform: process.platform
     }
     fs.writeFileSync(path.resolve("./Database/cache/info.tmp"), JSON.stringify(info))
+}
+
+async function Simple() {
+    let utc = new Date()
+    let now = new Date(utc.getTime() + utc.getTimezoneOffset() * 60 * 1000 + 60 * 60 * 8 * 1000)
+    return now.getHours() +
+        ":" + now.getMinutes() +
+        ":" + now.getSeconds()
 }

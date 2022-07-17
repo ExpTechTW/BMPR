@@ -3,21 +3,21 @@ const path = require("path")
 
 let BMPR = null
 let Loader = null
-let Permission=null
+let Permission = null
 
 async function init(bmpr) {
     BMPR = bmpr
     Loader = BMPR.Loader
-    Permission=BMPR.Permission
+    Permission = BMPR.Permission
 }
 
 async function main(msg) {
     if (msg.startsWith("bmpr upgrade")) fs.writeFileSync(path.resolve("./Database/cache/update.tmp"), "")
-    if (msg.startsWith("bmpr reload")){
-        fs.unlinkSync(path.resolve("./Database/cache/crash.tmp"))
+    if (msg.startsWith("bmpr reload")) {
+        if (fs.existsSync(path.resolve("./Database/cache/crash.tmp"))) fs.unlinkSync(path.resolve("./Database/cache/crash.tmp"))
         fs.writeFileSync(path.resolve("./Database/cache/reload.tmp"), "")
         process.exit(0)
-    } 
+    }
     if (msg.startsWith("bmpr plugin")) {
         if (msg.startsWith("bmpr plugin unload")) await Loader.PluginUnload(msg.replace("bmpr plugin unload ", ""))
         if (msg.startsWith("bmpr plugin load")) await Loader.PluginLoad(msg.replace("bmpr plugin load ", ""))
