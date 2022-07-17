@@ -27,7 +27,7 @@ async function PluginUnload(Plugin) {
     for (let index = 0; index < list.length; index++) {
         if (Plugin.includes(list[index])) {
             await Console.main(`${list[index]} 插件 已卸載`, 3, "Core", "Loader")
-            list.splice(index, 1)
+            list = list.splice(index, 1)
             return
         }
     }
@@ -71,7 +71,7 @@ setInterval(async () => {
                     }
                 }
             } catch (error) {
-                list.splice(list.indexOf(Plugin), 1)
+                list = list.splice(list.indexOf(Plugin), 1)
                 await Console.main(`${Plugin} Watchdog Reload Error`, 4, "Core", "Loader")
             }
         }
@@ -130,7 +130,7 @@ async function Load(args) {
         fs.unlinkSync(path.resolve("./Database/cache/crash.tmp"))
         if (fs.existsSync(path.resolve("./Database/cache/plugin.tmp"))) {
             let plugin = fs.readFileSync(path.resolve("./Database/cache/plugin.tmp"))
-            list.splice(list.indexOf(plugin), 1)
+            list = list.splice(list.indexOf(plugin), 1)
             await Console.main(`${plugin} 插件 崩潰 已暫時卸載\n使用 bmpr plugin load ${plugin} 重新加載`, 4, "Core", "Loader")
         }
     }
@@ -176,7 +176,7 @@ async function PluginLoading(plugin) {
         }
     } catch (error) {
         await Console.main(`${plugin} 加載 錯誤 >> ${error}`, 4, "Core", "Loader")
-        list.splice(list.indexOf(plugin), 1)
+        list = list.splice(list.indexOf(plugin), 1)
     }
     return
 }
@@ -187,7 +187,7 @@ async function RelyCheck() {
             if (!await Rely.main(Function[list[index]].Info.dependencies, Function, list)) throw "依賴問題"
         } catch (error) {
             await Console.main(`${list[index]} 插件 已卸載 >> ${error}`, 4, "Core", "Loader")
-            list.splice(index, 1)
+            list = list.splice(index, 1)
         }
     }
 }
@@ -329,6 +329,40 @@ async function messageUpdate(message) {
     }
 }
 
+async function guildCreate(message) {
+    for (let index = 0; index < list.length; index++) {
+        try {
+            let Info = Function[list[index]].Info
+            if (Info.events.includes("guildCreate")) {
+                await now(list[index])
+                WatchdogL["guildCreate"][list[index]] = new Date().getTime()
+                await Function[list[index]].guildCreate(message)
+                await Console.main(`${list[index]} guildCreate`, 0, "Core", "Loader")
+                delete WatchdogL["guildCreate"][list[index]]
+            }
+        } catch (error) {
+            await Console.main(`${list[index]} guildCreate 錯誤 >> ${error}`, 4, "Core", "Loader")
+        }
+    }
+}
+
+async function guildDelete(message) {
+    for (let index = 0; index < list.length; index++) {
+        try {
+            let Info = Function[list[index]].Info
+            if (Info.events.includes("guildDelete")) {
+                await now(list[index])
+                WatchdogL["guildDelete"][list[index]] = new Date().getTime()
+                await Function[list[index]].guildDelete(message)
+                await Console.main(`${list[index]} guildDelete`, 0, "Core", "Loader")
+                delete WatchdogL["guildDelete"][list[index]]
+            }
+        } catch (error) {
+            await Console.main(`${list[index]} guildDelete 錯誤 >> ${error}`, 4, "Core", "Loader")
+        }
+    }
+}
+
 async function now(plugin) {
     fs.writeFileSync(path.resolve("./Database/cache/plugin.tmp"), plugin)
 }
@@ -349,5 +383,7 @@ module.exports = {
     channelCreate,
     channelDelete,
     messageDelete,
-    messageUpdate
+    messageUpdate,
+    guildCreate,
+    guildDelete
 }

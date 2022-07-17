@@ -28,9 +28,12 @@ async function main() {
         console.log("\x1b[31m" + `[Thread][${await Simple()}][Main]: ${data.replaceAll("\n", "")}` + "\x1b[0m")
     })
     Main.stderr.on('data', async (data) => {
-        if (!data.includes("^C")) fs.writeFileSync(path.resolve("./Database/cache/crash.tmp"), "")
+        if (!data.includes("^C") && !data.includes("node:")) fs.writeFileSync(path.resolve("./Database/cache/crash.tmp"), "")
         fs.writeFileSync(path.resolve("./Database/cache/Crash.log"), data)
-        console.log("\x1b[31m" + `[Thread][${await Simple()}][Main]: ${data}` + "\x1b[0m")
+        if (data.includes("node:"))
+            console.log("\x1b[33m" + `[Thread][${await Simple()}][Main]: ${data}` + "\x1b[0m")
+        else
+            console.log("\x1b[31m" + `[Thread][${await Simple()}][Main]: ${data}` + "\x1b[0m")
     })
     Main.on('close', function (err) {
         let list = fs.readdirSync(path.resolve("./Database/cache"))
