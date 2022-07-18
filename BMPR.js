@@ -1,4 +1,6 @@
 const reload = require('require-reload')(require)
+const path = require('path')
+
 const Console = reload('./BMPR-Release/BMPR-Release/core/console')
 const Structure = reload('./BMPR-Release/BMPR-Release/core/structure')
 const Loader = reload('./BMPR-Release/BMPR-Release/core/loader')
@@ -10,13 +12,15 @@ const Help = reload('./BMPR-Release/BMPR-Release/core/api/help')
 const Rely = reload('./BMPR-Release/BMPR-Release/core/api/rely')
 const Permission = reload('./BMPR-Release/BMPR-Release/core/api/permission')
 
+const Path = path.resolve("./Plugin/lock")
+
 let Info = {
     "version": "1.0.0"
 }
 
-async function main(bmpr,args) {
+async function main(bmpr, args) {
     if (args != undefined) Info.reload = args
-    reload('./BMPR-Release/BMPR-Release/core/client').main(bmpr,Info)
+    reload('./BMPR-Release/BMPR-Release/core/client').main(bmpr, Info)
 }
 
 module.exports = {
@@ -31,5 +35,6 @@ module.exports = {
     User,
     Permission,
     Help,
-    Rely
+    Rely,
+    Path
 }

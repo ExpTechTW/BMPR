@@ -71,7 +71,7 @@ setInterval(async () => {
                     }
                 }
             } catch (error) {
-                list = list.splice(list.indexOf(Plugin), 1)
+                list.splice(list.indexOf(Plugin), 1)
                 await Console.main(`${Plugin} Watchdog Reload Error`, 4, "Core", "Loader")
             }
         }
@@ -130,7 +130,7 @@ async function Load(args) {
         fs.unlinkSync(path.resolve("./Database/cache/crash.tmp"))
         if (fs.existsSync(path.resolve("./Database/cache/plugin.tmp"))) {
             let plugin = fs.readFileSync(path.resolve("./Database/cache/plugin.tmp"))
-            list = list.splice(list.indexOf(plugin), 1)
+            list.splice(list.indexOf(plugin), 1)
             await Console.main(`${plugin} 插件 崩潰 已暫時卸載\n使用 bmpr plugin load ${plugin} 重新加載`, 4, "Core", "Loader")
         }
     }
@@ -176,7 +176,7 @@ async function PluginLoading(plugin) {
         }
     } catch (error) {
         await Console.main(`${plugin} 加載 錯誤 >> ${error}`, 4, "Core", "Loader")
-        list = list.splice(list.indexOf(plugin), 1)
+        list.splice(list.indexOf(plugin), 1)
     }
     return
 }
@@ -187,7 +187,7 @@ async function RelyCheck() {
             if (!await Rely.main(Function[list[index]].Info.dependencies, Function, list)) throw "依賴問題"
         } catch (error) {
             await Console.main(`${list[index]} 插件 已卸載 >> ${error}`, 4, "Core", "Loader")
-            list = list.splice(index, 1)
+            list.splice(index, 1)
         }
     }
 }
