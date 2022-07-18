@@ -30,7 +30,7 @@ async function main() {
     Main.stderr.on('data', async (data) => {
         if (!data.includes("^C") && !data.includes("node:")) fs.writeFileSync(path.resolve("./Database/cache/crash.tmp"), "")
         fs.writeFileSync(path.resolve("./Database/cache/Crash.log"), data)
-        if (data.includes("node:"))
+        if (data.includes("node:")&&!data.includes("Error"))
             console.log("\x1b[33m" + `[Thread][${await Simple()}][Main]: ${data}` + "\x1b[0m")
         else
             console.log("\x1b[31m" + `[Thread][${await Simple()}][Main]: ${data}` + "\x1b[0m")
