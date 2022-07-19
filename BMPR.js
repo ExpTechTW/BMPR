@@ -18,7 +18,7 @@ const Path = path.resolve("")
 const PathLock = path.resolve("./Plugin/lock")
 
 let Info = {
-    "version": "1.0.3"
+    "version": "1.0.4"
 }
 
 async function main(bmpr, args) {
