@@ -1,5 +1,6 @@
 const reload = require('require-reload')(require)
 const path = require('path')
+const fs = require('fs')
 
 const Console = reload('./BMPR-Release/BMPR-Release/core/console')
 const Structure = reload('./BMPR-Release/BMPR-Release/core/structure')
@@ -12,15 +13,24 @@ const Help = reload('./BMPR-Release/BMPR-Release/core/api/help')
 const Rely = reload('./BMPR-Release/BMPR-Release/core/api/rely')
 const Permission = reload('./BMPR-Release/BMPR-Release/core/api/permission')
 
-const Path = path.resolve("./Plugin/lock")
+const PathData = path.resolve("./Database/plugin")
+const Path = path.resolve("")
+const PathLock = path.resolve("./Plugin/lock")
 
 let Info = {
-    "version": "1.0.0"
+    "version": "1.0.2"
 }
 
 async function main(bmpr, args) {
+    await init()
     if (args != undefined) Info.reload = args
     reload('./BMPR-Release/BMPR-Release/core/client').main(bmpr, Info)
+}
+
+async function init() {
+    if (!fs.existsSync(path.resolve(`./Database/plugin`))) {
+        fs.mkdirSync(`./Database/plugin`)
+    }
 }
 
 module.exports = {
@@ -36,5 +46,7 @@ module.exports = {
     Permission,
     Help,
     Rely,
-    Path
+    PathData,
+    Path,
+    PathLock
 }

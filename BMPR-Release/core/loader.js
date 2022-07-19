@@ -40,8 +40,8 @@ async function PluginLoad(Plugin) {
     for (let index = 0; index < LIST.length; index++) {
         if (Plugin.includes(LIST[index])) {
             await PluginLoading(LIST[index])
-            Function[LIST[index]].init(BMPR)
-            Function[LIST[index]].ready(Client)
+            if (Function[LIST[index]].Info.events.includes("init")) Function[LIST[index]].init(BMPR)
+            if (Function[LIST[index]].Info.events.includes("ready")) Function[LIST[index]].ready(Client)
             await Console.main(`${LIST[index]} 插件 已加載`, 3, "Core", "Loader")
             if (!list.includes(LIST[index])) list.push(LIST[index])
             return
@@ -72,7 +72,7 @@ setInterval(async () => {
                 }
             } catch (error) {
                 list.splice(list.indexOf(Plugin), 1)
-                await Console.main(`${Plugin} Watchdog Reload Error`, 4, "Core", "Loader")
+                await Console.main(`${Plugin} Watchdog Reload Error 已暫時卸載\n使用 bmpr plugin load ${Plugin} 重新加載`, 4, "Core", "Loader")
             }
         }
     }
@@ -103,7 +103,7 @@ async function init(bmpr) {
     }
     await Load()
     await RelyCheck()
-    await BMPR.Help.init(Function, list, await BMPR.Config.main())
+    await BMPR.Help.init(Function, list, BMPR.Config)
     await Init()
 }
 

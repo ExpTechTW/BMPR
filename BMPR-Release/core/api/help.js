@@ -10,9 +10,9 @@ async function init(Fun, list, prefix) {
 
 async function main(plugin) {
     if (plugin == undefined) {
-        let msg = `**${Prefix}help BMPR**\n`
+        let msg = `**${Prefix}help BMPR** | 機器人\n`
         for (let index = 0; index < List.length; index++) {
-            msg += `**${Prefix}help ${Function[List[index]].Info.name}**\n`
+            msg += `**${Prefix}help ${Function[List[index]].Info.name}** | **${Function[List[index]].Info.description.zh_tw}**\n`
         }
         return msg
     } else {

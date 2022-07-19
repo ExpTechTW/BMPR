@@ -38,6 +38,8 @@ let Check = false
 async function main(bmpr, info) {
     BMPR = bmpr
     Config = await bmpr.Config.main()
+    BMPR.Config = Config
+    BMPR.Prefix = Config.Prefix
     Console = bmpr.Console
     Loader = bmpr.Loader
     Handler = bmpr.Handler
@@ -49,7 +51,7 @@ async function main(bmpr, info) {
 }
 
 client.on('ready', async (client) => {
-    BMPR.client = client
+    BMPR.Client = client
     await Console.init(client, Config, BMPR)
     let list = fs.readdirSync(path.resolve("./Database/cache/"))
     if (list.includes("update.tmp")) {
@@ -94,7 +96,7 @@ client.on('ready', async (client) => {
     if (num == 0) {
         await Console.main(`已是最新版本`, 2, "Core", "Client")
     } else {
-        await Console.main(`最新版本: ${last} 落後 最新版本 ${num} 個版本`, 3, "Core", "Client")
+        await Console.main(`最新版本: ${last} 落後 最新版本 ${num} 個版本 使用 bmpr upgrade 更新`, 3, "Core", "Client")
     }
     Check = true
     client.guilds.cache.forEach(async (guild) => {
