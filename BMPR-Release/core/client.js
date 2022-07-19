@@ -70,32 +70,27 @@ client.on('ready', async (client) => {
     client.user.setActivity(`${Config["Prefix"]}help | Powered by ExpTech`)
     const res = await fetch('https://api.github.com/repos/ExpTechTW/BMPR/releases')
     const data = await res.json()
-    let num = 0
+    let num = -1
     let last = ""
     for (let index = 0; index < data.length; index++) {
-        if (Config["Pre-Release"]) {
-            if (data[index]["tag_name"] != Info.version) {
-                num++
-                if (last == "") {
+        if (data[index]["tag_name"] == Info.version) {
+            num = index
+            break
+        } else
+            if (Config["Pre-Release"]) {
+                if (data[index]["tag_name"] != Info.version && last == "")
                     last = data[index]["tag_name"]
-                }
-            }
-        } else {
-            if (data[index]["prerelease"] == false && data[index]["tag_name"] != Info.version) {
-                num++
-                if (last == "") {
+            } else {
+                if (data[index]["prerelease"] == false && data[index]["tag_name"] != Info.version && last == "")
                     last = data[index]["tag_name"]
-                }
             }
-        }
-        if (data[index]["tag_name"] == Info.version) break
     }
     await Console.main(`BMPR 版本: ${Info.version} | 目前登入身份: ${client.user.tag} | 群組數量: ${client.guilds.cache.size}`, 2, "Core", "Client")
     let info = JSON.parse(fs.readFileSync(path.resolve("./Database/cache/info.tmp")).toString())
     await Console.main(`主線程 PID: ${info.PID} | 副線程 PID: ${info.pid}`, 2, "Core", "Client")
     if (num == 0) {
         await Console.main(`已是最新版本`, 2, "Core", "Client")
-    } else {
+    } else if (num > 0) {
         await Console.main(`最新版本: ${last} 落後 最新版本 ${num} 個版本 使用 bmpr upgrade 更新`, 3, "Core", "Client")
     }
     Check = true
