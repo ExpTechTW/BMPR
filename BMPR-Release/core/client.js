@@ -96,13 +96,13 @@ client.on("ready", async (client) => {
 		await Console.main(`最新版本: ${last} 落後 最新版本 ${num} 個版本 使用 bmpr upgrade 更新`, 3, "Core", "Client");
 
 	Check = true;
-	client.guilds.cache.forEach(async (guild) => {
-		if (!guild.members.me.permissions.has("Administrator")) {
-			const U = await client.users.fetch(guild.ownerId).catch((err) => { });
-			U.send("請給予機器人 **管理者** 權限\n從我的簡介重新邀請我");
-			guild.leave();
-		}
-	});
+	// client.guilds.cache.forEach(async (guild) => {
+	// 	if (!guild.members.me.permissions.has("Administrator")) {
+	// 		const U = await client.users.fetch(guild.ownerId).catch((err) => { });
+	// 		U.send("請給予機器人 **管理者** 權限\n從我的簡介重新邀請我");
+	// 		guild.leave();
+	// 	}
+	// });
 });
 
 client.on("messageCreate", async message => {
@@ -150,11 +150,11 @@ client.on("messageUpdate", async (Old, New) => {
 
 client.on("guildCreate", async (guild) => {
 	if (!Check) return;
-	if (!guild.members.me.permissions.has("Administrator")) {
-		const U = await client.users.fetch(guild.ownerId).catch((err) => {});
-		U.send("請給予機器人 **管理者** 權限\n從我的簡介重新邀請我");
-		guild.leave();
-	}
+	// if (!guild.members.me.permissions.has("Administrator")) {
+	// 	const U = await client.users.fetch(guild.ownerId).catch((err) => {});
+	// 	U.send("請給予機器人 **管理者** 權限\n從我的簡介重新邀請我");
+	// 	guild.leave();
+	// }
 	await Loader.guildCreate(guild);
 });
 

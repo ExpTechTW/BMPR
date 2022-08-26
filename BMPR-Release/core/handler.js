@@ -5,12 +5,20 @@ let BMPR = null;
 let Loader = null;
 let Permission = null;
 
+/**
+ *
+ * @param {object} bmpr
+ */
 function init(bmpr) {
 	BMPR = bmpr;
 	Loader = BMPR.Loader;
 	Permission = BMPR.Permission;
 }
 
+/**
+ *
+ * @param {string} msg
+ */
 async function main(msg) {
 	if (msg.startsWith("bmpr upgrade")) fs.writeFileSync(path.resolve("./Database/cache/update.tmp"), "");
 	if (msg.startsWith("bmpr reload")) {

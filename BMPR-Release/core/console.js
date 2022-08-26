@@ -14,6 +14,13 @@ let body = "";
 let Config = null;
 let update = null;
 
+/**
+ *
+ * @param {string} client
+ * @param {object} config
+ * @param {object} bmpr
+ * @returns
+ */
 async function init(client, config, bmpr) {
 	BMPR = bmpr;
 	Structure = BMPR.Structure;
@@ -26,6 +33,15 @@ async function init(client, config, bmpr) {
 	return;
 }
 
+/**
+ *
+ * @param {string} msg
+ * @param {number} level
+ * @param {string} sender
+ * @param {string} fun
+ * @param {string} client
+ * @returns
+ */
 async function main(msg, level, sender, fun, client) {
 	try {
 		if (client != undefined)

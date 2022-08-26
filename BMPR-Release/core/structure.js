@@ -1,5 +1,14 @@
 const { EmbedBuilder } = require("discord.js");
 
+/**
+ *
+ * @param {string} msg
+ * @param {string} color
+ * @param {string} author
+ * @param {string} image
+ * @param {string} icon
+ * @returns
+ */
 function embed(msg, color, author, image, icon) {
 	if (color == (undefined || null))
 		color = "#0099ff";

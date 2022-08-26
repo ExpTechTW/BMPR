@@ -23,6 +23,11 @@ const Config = {};
 let BMPR = null;
 let Client = null;
 
+/**
+ *
+ * @param {string} Plugin
+ * @returns
+ */
 async function PluginUnload(Plugin) {
 	for (let index = 0; index < list.length; index++)
 		if (Plugin.includes(list[index])) {
@@ -35,6 +40,11 @@ async function PluginUnload(Plugin) {
 	return;
 }
 
+/**
+ *
+ * @param {string} Plugin
+ * @returns
+ */
 async function PluginLoad(Plugin) {
 	const LIST = fs.readdirSync(path.resolve("./Plugin/lock"));
 	for (let index = 0; index < LIST.length; index++)
@@ -78,6 +88,10 @@ setInterval(async () => {
 	}
 }, 1000);
 
+/**
+ *
+ * @param {object} bmpr
+ */
 async function init(bmpr) {
 	BMPR = bmpr;
 	Console = BMPR.Console;
@@ -124,6 +138,11 @@ async function Init() {
 
 }
 
+/**
+ *
+ * @param {*} args
+ * @returns
+ */
 async function Load(args) {
 	list = fs.readdirSync(path.resolve("./Plugin/lock"));
 	if (fs.existsSync(path.resolve("./Database/cache/crash.tmp"))) {
@@ -149,6 +168,11 @@ async function Load(args) {
 	return;
 }
 
+/**
+ *
+ * @param {string} plugin
+ * @returns
+ */
 async function PluginLoading(plugin) {
 	try {
 		now(plugin);
@@ -192,6 +216,10 @@ async function RelyCheck() {
 
 }
 
+/**
+ *
+ * @param {object} client
+ */
 async function ready(client) {
 	Client = client;
 	for (let index = 0; index < list.length; index++)
@@ -210,6 +238,10 @@ async function ready(client) {
 
 }
 
+/**
+ *
+ * @param {object} message
+ */
 async function messageCreate(message) {
 	for (let index = 0; index < list.length; index++)
 		try {

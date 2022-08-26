@@ -17,11 +17,11 @@ if (!fs.existsSync(path.resolve("./Plugin")))
 if (!fs.existsSync(path.resolve("./Plugin/lock")))
 	fs.mkdirSync("./Plugin/lock");
 
-
+if (fs.existsSync(path.resolve("./Database/cache/crash.tmp"))) fs.unlinkSync(path.resolve("./Database/cache/crash.tmp"));
 main();
 
 function main() {
-	Main = child_process.exec(`cd ${path.resolve("")} & node run.js`);
+	Main = child_process.exec(`cd ${path.resolve("")} & node --no-warnings run.js`);
 	Main.stdout.on("data", (data) => {
 		console.log(data.replaceAll("\n", ""));
 	});
