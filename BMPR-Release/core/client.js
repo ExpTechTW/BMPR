@@ -1,3 +1,4 @@
+/* eslint-disable require-sort/require-sort */
 /* eslint-disable no-shadow */
 /* eslint-disable no-empty-function */
 let Console = null;
@@ -36,6 +37,8 @@ let Info = null;
 let Config = null;
 let BMPR = null;
 let Check = false;
+
+setInterval(() => console.log("WTD"), 1000);
 
 async function main(bmpr, info) {
 	BMPR = bmpr;
@@ -94,67 +97,67 @@ client.on("ready", async (client) => {
 	Check = true;
 });
 
-client.on("messageCreate", async message => {
+client.on("messageCreate", async (...args) => {
 	if (!Check) return;
-	if (message.channel.id == Config["Bot.Console"]) {
-		if (message.author.id != client.user.id) await Console.clear();
-		if (message.content.startsWith("bmpr")) Handler.main(message.content);
+	if (args[0].channel.id == Config["Bot.Console"]) {
+		if (args[0].author.id != client.user.id) await Console.clear();
+		if (args[0].content.startsWith("bmpr")) Handler.main(args[0].content);
 	}
-	await Loader.messageCreate(message);
-	await User.main(message.author);
-	await Permission.main(message.author);
-	if (message.content == `${Config["Prefix"]}help`) message.reply(">>> " + await BMPR.Help.main());
-	if (message.content.startsWith(`${Config["Prefix"]}help `)) message.reply(">>> " + await BMPR.Help.main(message.content.replace(`${Config["Prefix"]}help `, "")));
+	await Loader.messageCreate(BMPR, ...args);
+	await User.main(args[0].author);
+	await Permission.main(args[0].author);
+	if (args[0].content == `${Config["Prefix"]}help`) args[0].reply(">>> " + await BMPR.Help.main());
+	if (args[0].content.startsWith(`${Config["Prefix"]}help `)) args[0].reply(">>> " + await BMPR.Help.main(args[0].content.replace(`${Config["Prefix"]}help `, "")));
 });
 
-client.on("messageReactionAdd", async (reaction, user) => {
+client.on("messageReactionAdd", async (...args) => {
 	if (!Check) return;
-	await Loader.messageReactionAdd(reaction, user);
+	await Loader.messageReactionAdd(BMPR, ...args);
 });
 
-client.on("messageReactionRemove", async (reaction, user) => {
+client.on("messageReactionRemove", async (...args) => {
 	if (!Check) return;
-	await Loader.messageReactionRemove(reaction, user);
+	await Loader.messageReactionRemove(BMPR, ...args);
 });
 
-client.on("channelCreate", async channel => {
+client.on("channelCreate", async (...args) => {
 	if (!Check) return;
-	await Loader.channelCreate(channel);
+	await Loader.channelCreate(BMPR, ...args);
 });
 
-client.on("channelDelete", async channel => {
+client.on("channelDelete", async (...args) => {
 	if (!Check) return;
-	await Loader.channelDelete(channel);
+	await Loader.channelDelete(BMPR, ...args);
 });
 
-client.on("messageDelete", async (message) => {
+client.on("messageDelete", async (...args) => {
 	if (!Check) return;
-	await Loader.messageDelete(message);
+	await Loader.messageDelete(BMPR, ...args);
 });
 
-client.on("messageUpdate", async (Old, New) => {
+client.on("messageUpdate", async (...args) => {
 	if (!Check) return;
-	await Loader.messageUpdate(Old, New);
+	await Loader.messageUpdate(BMPR, ...args);
 });
 
-client.on("guildCreate", async (guild) => {
+client.on("guildCreate", async (...args) => {
 	if (!Check) return;
-	await Loader.guildCreate(guild);
+	await Loader.guildCreate(BMPR, ...args);
 });
 
-client.on("guildDelete", async (guild) => {
+client.on("guildDelete", async (...args) => {
 	if (!Check) return;
-	await Loader.guildDelete(guild);
+	await Loader.guildDelete(BMPR, ...args);
 });
 
-client.on("guildMemberAdd", async (member) => {
+client.on("guildMemberAdd", async (...args) => {
 	if (!Check) return;
-	await Loader.guildMemberAdd(member);
+	await Loader.guildMemberAdd(BMPR, ...args);
 });
 
-client.on("guildMemberRemove", async (member) => {
+client.on("guildMemberRemove", async (...args) => {
 	if (!Check) return;
-	await Loader.guildMemberRemove(member);
+	await Loader.guildMemberRemove(BMPR, ...args);
 });
 
 module.exports = {

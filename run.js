@@ -16,7 +16,6 @@ if (list.includes("Reload.tmp")) {
 } else
 	Main();
 
-
 Update();
 
 function Main(args) {

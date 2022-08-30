@@ -19,7 +19,7 @@ const Path = path.resolve("");
 const PathLock = path.resolve("./Plugin/lock");
 
 const Info = {
-	"version": "1.0.4",
+	"version": "2.0.0",
 };
 
 function main(bmpr, args) {
@@ -31,7 +31,6 @@ function main(bmpr, args) {
 function init() {
 	if (!fs.existsSync(path.resolve("./Database/plugin")))
 		fs.mkdirSync("./Database/plugin");
-
 }
 
 module.exports = {

@@ -6,6 +6,17 @@ function Simple() {
         ":" + now.getSeconds();
 }
 
+function Main() {
+	const utc = new Date();
+	const now = new Date(utc.getTime() + utc.getTimezoneOffset() * 60 * 1000 + 60 * 60 * 8 * 1000);
+	return now.getFullYear() +
+        "/" + (now.getMonth() + 1) +
+        "/" + now.getDate() +
+        " " + now.getHours() +
+        ":" + now.getMinutes() +
+        ":" + now.getSeconds();
+}
+
 function Full() {
 	const utc = new Date();
 	const now = new Date(utc.getTime() + utc.getTimezoneOffset() * 60 * 1000 + 60 * 60 * 8 * 1000);
@@ -21,4 +32,5 @@ function Full() {
 module.exports = {
 	Simple,
 	Full,
+	Main,
 };

@@ -1,11 +1,12 @@
 let Function = null;
 let List = null;
-let Prefix = null;
+let BMPR = null;
 
-function init(Fun, list, prefix) {
+function init(Fun, list, bmpr) {
 	List = list;
 	Function = Fun;
-	Prefix = prefix.Prefix;
+	BMPR = bmpr;
+	return;
 }
 
 /**
@@ -15,10 +16,10 @@ function init(Fun, list, prefix) {
  */
 function main(plugin) {
 	if (plugin == undefined) {
-		let msg = `**${Prefix}help BMPR** | 機器人\n`;
+		let msg = `**${BMPR.Prefix}help BMPR** | 機器人\n`;
 		for (let index = 0; index < List.length; index++) {
 			if (Function[List[index]].Info.commands.length == 0) continue;
-			msg += `**${Prefix}help ${Function[List[index]].Info.name}** | **${Function[List[index]].Info.description.zh_tw}**\n`;
+			msg += `**${BMPR.Prefix}help ${Function[List[index]].Info.name}** | **${Function[List[index]].Info.description.zh_tw}**\n`;
 		}
 		return msg;
 	} else {
@@ -31,7 +32,7 @@ function main(plugin) {
 			for (let Index = 0; Index < Function[List[index]].Info.commands.length; Index++) {
 				const name = Function[List[index]].Info.commands[Index]["name"];
 				const note = Function[List[index]].Info.commands[Index]["note"];
-				msg += `${name} | ${note}\n`;
+				msg += `${name.replace("${prefix}", BMPR.Prefix)} | ${note}\n`;
 			}
 			return msg;
 		}

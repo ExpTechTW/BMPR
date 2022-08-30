@@ -1,7 +1,8 @@
+/* eslint-disable no-shadow */
 const reload = require("require-reload")(require);
 let Console = null;
 let Rely = null;
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
 const zl = require("zip-lib");
 
@@ -22,37 +23,34 @@ const Config = {};
 let BMPR = null;
 let Client = null;
 
-/**
- *
- * @param {string} Plugin
- * @returns
- */
 async function PluginUnload(Plugin) {
 	for (let index = 0; index < list.length; index++)
 		if (Plugin.includes(list[index])) {
+			await fs.remove(path.resolve("./Plugin/lock/" + list[index]));
 			await Console.main(`${list[index]} 插件 已卸載`, 3, "Core", "Loader");
-			list = list.splice(index, 1);
+			list.splice(index, 1);
 			return;
 		}
 	await Console.main(`未發現 ${Plugin} 插件`, 3, "Core", "Loader");
 	return;
 }
 
-/**
- *
- * @param {string} Plugin
- * @returns
- */
 async function PluginLoad(Plugin) {
-	const LIST = fs.readdirSync(path.resolve("./Plugin/lock"));
+	const LIST = fs.readdirSync(path.resolve("./Plugin"));
 	for (let index = 0; index < LIST.length; index++)
 		if (Plugin.includes(LIST[index])) {
+			await Cache(LIST[index]);
 			await PluginLoading(LIST[index]);
-			if (Function[LIST[index]].Info.events.includes("init")) Function[LIST[index]].init(BMPR);
-			if (Function[LIST[index]].Info.events.includes("ready")) Function[LIST[index]].ready(Client);
-			await Console.main(`${LIST[index]} 插件 已加載`, 3, "Core", "Loader");
-			if (!list.includes(LIST[index])) list.push(LIST[index]);
-			return;
+			if (!await Rely.main(Function[LIST[index]].Info.dependencies, Function, list)) {
+				await Console.main(`${LIST[index]} 插件 已卸載 >> 依賴問題`, 4, "Core", "Loader");
+				return;
+			} else {
+				if (Function[LIST[index]].init != undefined) await Function[LIST[index]].init(BMPR);
+				if (Function[LIST[index]].ready != undefined) Function[LIST[index]].ready(Client);
+				await Console.main(`${LIST[index]} 插件 已加載`, 3, "Core", "Loader");
+				if (!list.includes(LIST[index])) list.push(LIST[index]);
+				return;
+			}
 		}
 	await Console.main(`未發現 ${Plugin} 插件`, 3, "Core", "Loader");
 	return;
@@ -66,7 +64,6 @@ setInterval(async () => {
 			try {
 				if (new Date().getTime() - WatchdogL[Event][Plugin] > 5000) {
 					delete WatchdogL[Event][Plugin];
-					now(Plugin);
 					if (!Plugin.includes(".js")) {
 						Function[Plugin] = await reload(`../../Plugin/lock/${Plugin}/index.js`);
 						const Info = JSON.parse(fs.readFileSync(path.resolve("./Plugin/lock/" + Plugin + "/info.json")).toString());
@@ -85,47 +82,52 @@ setInterval(async () => {
 	}
 }, 1000);
 
-/**
- *
- * @param {object} bmpr
- */
 async function init(bmpr) {
 	BMPR = bmpr;
 	Console = BMPR.Console;
 	Rely = BMPR.Rely;
 	const List = fs.readdirSync(path.resolve("./Plugin"));
+	await fs.remove("./Plugin/lock");
+	fs.mkdirSync("./Plugin/lock");
 	for (let index = 0; index < List.length; index++)
-		try {
-			if (List[index] != "lock" && (List[index].includes(".js") || List[index].includes(".zip") || List[index].includes(".bmpr")))
-				if (List[index].includes(".zip") || List[index].includes(".bmpr")) {
-					fs.copyFileSync(path.resolve("./Plugin/" + List[index]), path.resolve("./Plugin/lock/" + List[index]));
-					const unzip = new zl.Unzip();
-					await unzip.extract(path.resolve("./Plugin/lock/" + List[index]), path.resolve("./Plugin/lock/"));
-					fs.unlinkSync(path.resolve("./Plugin/lock/" + List[index]));
-					await Console.main(`${List[index]} 緩存 Package 插件`, 1, "Core", "Loader");
-				} else {
-					fs.copyFileSync(path.resolve("./Plugin/" + List[index]), path.resolve("./Plugin/lock/" + List[index]));
-					await Console.main(`${List[index]} 緩存 Single 插件`, 1, "Core", "Loader");
-				}
-
-		} catch (error) {
-			await Console.main(`${List[index]} 緩存 >> ${error}`, 4, "Core", "Loader");
-		}
+		await Cache(List[index]);
 	await Load();
 	await RelyCheck();
-	await BMPR.Help.init(Function, list, BMPR.Config);
+	await BMPR.Help.init(Function, list, BMPR);
 	await Init();
+	await Console.main(`所有插件加載完成 共 ${list.length} 個`, 2, "Core", "Loader");
+	for (let index = 0; index < list.length; index++)
+		await Console.main(`- ${list[index]}`, 2, "Core", "Loader");
+}
+
+async function Cache(plugin) {
+	try {
+		if (plugin != "lock")
+			if (plugin.includes(".zip") || plugin.includes(".bmpr")) {
+				fs.copyFileSync(path.resolve("./Plugin/" + plugin), path.resolve("./Plugin/lock/" + plugin));
+				const unzip = new zl.Unzip();
+				await unzip.extract(path.resolve("./Plugin/lock/" + plugin), path.resolve("./Plugin/lock/"));
+				fs.unlinkSync(path.resolve("./Plugin/lock/" + plugin));
+				await Console.main(`${plugin} 緩存 Compression Package 插件`, 1, "Core", "Loader");
+			} else if (plugin.includes(".js")) {
+				await fs.copy(path.resolve("./Plugin/" + plugin), path.resolve("./Plugin/lock/" + plugin));
+				await Console.main(`${plugin} 緩存 Single 插件`, 1, "Core", "Loader");
+			} else {
+				await fs.copy(path.resolve("./Plugin/" + plugin), path.resolve("./Plugin/lock/" + plugin));
+				await Console.main(`${plugin} 緩存 Package 插件`, 1, "Core", "Loader");
+			}
+	} catch (error) {
+		await Console.main(`${plugin} 緩存 >> ${error}`, 4, "Core", "Loader");
+	}
 }
 
 async function Init() {
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("init")) {
-				now(list[index]);
+			if (Function[list[index]].init != undefined) {
 				WatchdogL["init"][list[index]] = new Date().getTime();
 				await Function[list[index]].init(BMPR);
-				await Console.main(`${list[index]} init`, 1, "Core", "Loader");
+				await Console.main(`${list[index]} init`, 0, "Core", "Loader");
 				delete WatchdogL["init"][list[index]];
 			}
 		} catch (error) {
@@ -133,22 +135,15 @@ async function Init() {
 		}
 }
 
-/**
- *
- * @param {*} args
- * @returns
- */
 async function Load(args) {
 	list = fs.readdirSync(path.resolve("./Plugin/lock"));
-	if (fs.existsSync(path.resolve("./Database/cache/crash.tmp"))) {
-		fs.unlinkSync(path.resolve("./Database/cache/crash.tmp"));
-		if (fs.existsSync(path.resolve("./Database/cache/plugin.tmp"))) {
-			const plugin = fs.readFileSync(path.resolve("./Database/cache/plugin.tmp"));
-			for (let index = 0; index < list.length; index++)
-				if (plugin.includes(list[index])) list.splice(index, 1);
-			await Console.main(`${plugin} 插件 崩潰 已暫時卸載\n使用 bmpr plugin load ${plugin} 重新加載`, 4, "Core", "Loader");
+	const pluginLog = fs.readFileSync(path.resolve("./Database/cache/Crash.log"));
+	for (let index = 0; index < list.length; index++)
+		if (pluginLog.includes(list[index])) {
+			await Console.main(`${list[index]} 插件 崩潰 已暫時卸載\n使用 bmpr plugin load ${list[index]} 重新加載`, 4, "Core", "Loader");
+			list.splice(index, 1);
 		}
-	}
+	fs.writeFileSync(path.resolve("./Database/cache/Crash.log"), "");
 	for (let index = 0; index < list.length; index++) {
 		if (list[index].includes(".zip") || list[index].includes(".bmpr")) {
 			fs.unlinkSync(path.resolve("./Plugin/lock/" + list[index]));
@@ -163,14 +158,8 @@ async function Load(args) {
 	return;
 }
 
-/**
- *
- * @param {string} plugin
- * @returns
- */
 async function PluginLoading(plugin) {
 	try {
-		now(plugin);
 		if (!plugin.includes(".js")) {
 			Function[plugin] = await reload(path.resolve(`./Plugin/lock/${plugin}/index.js`));
 			const Info = JSON.parse(fs.readFileSync(path.resolve("./Plugin/lock/" + plugin + "/BMPR.json")).toString());
@@ -180,7 +169,7 @@ async function PluginLoading(plugin) {
 					fs.copyFileSync(path.resolve(`./Plugin/lock/${plugin}/config.json`), path.resolve(`./Database/config/${plugin}.json`));
 				else
 					Config[plugin] = JSON.parse(fs.readFileSync(path.resolve(`./Database/config/${plugin}.json`)).toString());
-			await Console.main(`${plugin} 已加載 Package 插件 | 版本: ${Info.version}`, 1, "Core", "Loader");
+			await Console.main(`${plugin} 加載 Package 插件 | 版本: ${Info.version}`, 1, "Core", "Loader");
 		} else {
 			Function[plugin] = reload(`../../Plugin/lock/${plugin}`);
 			if (Function[plugin].config != undefined)
@@ -188,7 +177,7 @@ async function PluginLoading(plugin) {
 					fs.writeFileSync(path.resolve(`./Database/config/${plugin.replace(".js", "")}.json`), JSON.stringify(Function[plugin].config));
 				else
 					Config[plugin] = JSON.parse(fs.readFileSync(path.resolve(`./Database/config/${plugin.replace(".js", "")}.json`)).toString());
-			await Console.main(`${plugin} 已加載 Single 插件 | 版本: ${Function[plugin].Info.version}`, 1, "Core", "Loader");
+			await Console.main(`${plugin} 加載 Single 插件 | 版本: ${Function[plugin].Info.version}`, 1, "Core", "Loader");
 		}
 	} catch (error) {
 		await Console.main(`${plugin} 加載 錯誤 >> ${error}`, 4, "Core", "Loader");
@@ -207,17 +196,11 @@ async function RelyCheck() {
 		}
 }
 
-/**
- *
- * @param {object} client
- */
 async function ready(client) {
 	Client = client;
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("ready")) {
-				now(list[index]);
+			if (Function[list[index]].ready != undefined) {
 				WatchdogL["ready"][list[index]] = new Date().getTime();
 				await Function[list[index]].ready(client);
 				await Console.main(`${list[index]} ready`, 1, "Core", "Loader");
@@ -228,18 +211,12 @@ async function ready(client) {
 		}
 }
 
-/**
- *
- * @param {object} message
- */
-async function messageCreate(message) {
+async function messageCreate(BMPR, ...args) {
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("messageCreate")) {
-				now(list[index]);
+			if (Function[list[index]].messageCreate != undefined) {
 				WatchdogL["messageCreate"][list[index]] = new Date().getTime();
-				await Function[list[index]].messageCreate(message);
+				await Function[list[index]].messageCreate(BMPR, ...args);
 				await Console.main(`${list[index]} messageCreate`, 0, "Core", "Loader");
 				delete WatchdogL["messageCreate"][list[index]];
 			}
@@ -248,14 +225,12 @@ async function messageCreate(message) {
 		}
 }
 
-async function messageReactionAdd(reaction, user) {
+async function messageReactionAdd(BMPR, ...args) {
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("messageReactionAdd")) {
-				now(list[index]);
+			if (Function[list[index]].messageReactionAdd != undefined) {
 				WatchdogL["messageReactionAdd"][list[index]] = new Date().getTime();
-				await Function[list[index]].messageReactionAdd(reaction, user);
+				await Function[list[index]].messageReactionAdd(BMPR, ...args);
 				await Console.main(`${list[index]} messageReactionAdd`, 0, "Core", "Loader");
 				delete WatchdogL["messageReactionAdd"][list[index]];
 			}
@@ -264,14 +239,12 @@ async function messageReactionAdd(reaction, user) {
 		}
 }
 
-async function messageReactionRemove(reaction, user) {
+async function messageReactionRemove(BMPR, ...args) {
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("messageReactionRemove")) {
-				now(list[index]);
+			if (Function[list[index]].messageReactionRemove != undefined) {
 				WatchdogL["messageReactionRemove"][list[index]] = new Date().getTime();
-				await Function[list[index]].messageReactionRemove(reaction, user);
+				await Function[list[index]].messageReactionRemove(BMPR, ...args);
 				await Console.main(`${list[index]} messageReactionRemove`, 0, "Core", "Loader");
 				delete WatchdogL["messageReactionRemove"][list[index]];
 			}
@@ -280,14 +253,12 @@ async function messageReactionRemove(reaction, user) {
 		}
 }
 
-async function channelCreate(channel) {
+async function channelCreate(BMPR, ...args) {
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("channelCreate")) {
-				now(list[index]);
+			if (Function[list[index]].channelCreate != undefined) {
 				WatchdogL["channelCreate"][list[index]] = new Date().getTime();
-				await Function[list[index]].channelCreate(channel);
+				await Function[list[index]].channelCreate(BMPR, ...args);
 				await Console.main(`${list[index]} channelCreate`, 0, "Core", "Loader");
 				delete WatchdogL["channelCreate"][list[index]];
 			}
@@ -296,14 +267,12 @@ async function channelCreate(channel) {
 		}
 }
 
-async function channelDelete(channel) {
+async function channelDelete(BMPR, ...args) {
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("channelDelete")) {
-				now(list[index]);
+			if (Function[list[index]].channelDelete != undefined) {
 				WatchdogL["channelDelete"][list[index]] = new Date().getTime();
-				await Function[list[index]].channelDelete(channel);
+				await Function[list[index]].channelDelete(BMPR, ...args);
 				await Console.main(`${list[index]} channelDelete`, 0, "Core", "Loader");
 				delete WatchdogL["channelDelete"][list[index]];
 			}
@@ -312,14 +281,12 @@ async function channelDelete(channel) {
 		}
 }
 
-async function messageDelete(message) {
+async function messageDelete(BMPR, ...args) {
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("messageDelete")) {
-				now(list[index]);
+			if (Function[list[index]].messageDelete != undefined) {
 				WatchdogL["messageDelete"][list[index]] = new Date().getTime();
-				await Function[list[index]].messageDelete(message);
+				await Function[list[index]].messageDelete(BMPR, ...args);
 				await Console.main(`${list[index]} messageDelete`, 0, "Core", "Loader");
 				delete WatchdogL["messageDelete"][list[index]];
 			}
@@ -328,14 +295,12 @@ async function messageDelete(message) {
 		}
 }
 
-async function messageUpdate(message) {
+async function messageUpdate(BMPR, ...args) {
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("messageUpdate")) {
-				now(list[index]);
+			if (Function[list[index]].messageUpdate != undefined) {
 				WatchdogL["messageUpdate"][list[index]] = new Date().getTime();
-				await Function[list[index]].messageUpdate(message);
+				await Function[list[index]].messageUpdate(BMPR, ...args);
 				await Console.main(`${list[index]} messageUpdate`, 0, "Core", "Loader");
 				delete WatchdogL["messageUpdate"][list[index]];
 			}
@@ -344,14 +309,12 @@ async function messageUpdate(message) {
 		}
 }
 
-async function guildCreate(message) {
+async function guildCreate(BMPR, ...args) {
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("guildCreate")) {
-				now(list[index]);
+			if (Function[list[index]].guildCreate != undefined) {
 				WatchdogL["guildCreate"][list[index]] = new Date().getTime();
-				await Function[list[index]].guildCreate(message);
+				await Function[list[index]].guildCreate(BMPR, ...args);
 				await Console.main(`${list[index]} guildCreate`, 0, "Core", "Loader");
 				delete WatchdogL["guildCreate"][list[index]];
 			}
@@ -360,14 +323,12 @@ async function guildCreate(message) {
 		}
 }
 
-async function guildDelete(message) {
+async function guildDelete(BMPR, ...args) {
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("guildDelete")) {
-				now(list[index]);
+			if (Function[list[index]].guildDelete != undefined) {
 				WatchdogL["guildDelete"][list[index]] = new Date().getTime();
-				await Function[list[index]].guildDelete(message);
+				await Function[list[index]].guildDelete(BMPR, ...args);
 				await Console.main(`${list[index]} guildDelete`, 0, "Core", "Loader");
 				delete WatchdogL["guildDelete"][list[index]];
 			}
@@ -376,14 +337,12 @@ async function guildDelete(message) {
 		}
 }
 
-async function guildMemberAdd(member) {
+async function guildMemberAdd(BMPR, ...args) {
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("guildMemberAdd")) {
-				now(list[index]);
+			if (Function[list[index]].guildMemberAdd != undefined) {
 				WatchdogL["guildMemberAdd"][list[index]] = new Date().getTime();
-				await Function[list[index]].guildMemberAdd(member);
+				await Function[list[index]].guildMemberAdd(BMPR, ...args);
 				await Console.main(`${list[index]} guildMemberAdd`, 0, "Core", "Loader");
 				delete WatchdogL["guildMemberAdd"][list[index]];
 			}
@@ -392,24 +351,18 @@ async function guildMemberAdd(member) {
 		}
 }
 
-async function guildMemberRemove(member) {
+async function guildMemberRemove(BMPR, ...args) {
 	for (let index = 0; index < list.length; index++)
 		try {
-			const Info = Function[list[index]].Info;
-			if (Info.events.includes("guildMemberRemove")) {
-				now(list[index]);
+			if (Function[list[index]].guildMemberRemove != undefined) {
 				WatchdogL["guildMemberRemove"][list[index]] = new Date().getTime();
-				await Function[list[index]].guildMemberRemove(member);
+				await Function[list[index]].guildMemberRemove(BMPR, ...args);
 				await Console.main(`${list[index]} guildMemberRemove`, 0, "Core", "Loader");
 				delete WatchdogL["guildMemberRemove"][list[index]];
 			}
 		} catch (error) {
 			await Console.main(`${list[index]} guildMemberRemove 錯誤 >> ${error}`, 4, "Core", "Loader");
 		}
-}
-
-function now(plugin) {
-	fs.writeFileSync(path.resolve("./Database/cache/plugin.tmp"), plugin);
 }
 
 module.exports = {
