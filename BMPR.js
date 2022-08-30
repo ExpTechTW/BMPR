@@ -19,7 +19,7 @@ const Path = path.resolve("");
 const PathLock = path.resolve("./Plugin/lock");
 
 const Info = {
-	"version": "1.0.3",
+	"version": "1.0.4",
 };
 
 function main(bmpr, args) {

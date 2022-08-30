@@ -62,7 +62,6 @@ client.on("ready", async (client) => {
 	}
 	if (Info.reload != undefined)
 		await Console.main(Info.reload, 3, "Main", "Main");
-
 	delete Info.reload;
 	await Rely.init(BMPR);
 	await Loader.init(BMPR);
@@ -85,8 +84,6 @@ client.on("ready", async (client) => {
 		} else
 		if (data[index]["prerelease"] == false && data[index]["tag_name"] != Info.version && last == "")
 			last = data[index]["tag_name"];
-
-
 	await Console.main(`BMPR 版本: ${Info.version} | 目前登入身份: ${client.user.tag} | 群組數量: ${client.guilds.cache.size}`, 2, "Core", "Client");
 	const info = JSON.parse(fs.readFileSync(path.resolve("./Database/cache/info.tmp")).toString());
 	await Console.main(`主線程 PID: ${info.PID} | 副線程 PID: ${info.pid}`, 2, "Core", "Client");
@@ -94,15 +91,7 @@ client.on("ready", async (client) => {
 		await Console.main("已是最新版本", 2, "Core", "Client");
 	else if (num > 0)
 		await Console.main(`最新版本: ${last} 落後 最新版本 ${num} 個版本 使用 bmpr upgrade 更新`, 3, "Core", "Client");
-
 	Check = true;
-	// client.guilds.cache.forEach(async (guild) => {
-	// 	if (!guild.members.me.permissions.has("Administrator")) {
-	// 		const U = await client.users.fetch(guild.ownerId).catch((err) => { });
-	// 		U.send("請給予機器人 **管理者** 權限\n從我的簡介重新邀請我");
-	// 		guild.leave();
-	// 	}
-	// });
 });
 
 client.on("messageCreate", async message => {
@@ -150,17 +139,22 @@ client.on("messageUpdate", async (Old, New) => {
 
 client.on("guildCreate", async (guild) => {
 	if (!Check) return;
-	// if (!guild.members.me.permissions.has("Administrator")) {
-	// 	const U = await client.users.fetch(guild.ownerId).catch((err) => {});
-	// 	U.send("請給予機器人 **管理者** 權限\n從我的簡介重新邀請我");
-	// 	guild.leave();
-	// }
 	await Loader.guildCreate(guild);
 });
 
 client.on("guildDelete", async (guild) => {
 	if (!Check) return;
 	await Loader.guildDelete(guild);
+});
+
+client.on("guildMemberAdd", async (member) => {
+	if (!Check) return;
+	await Loader.guildMemberAdd(member);
+});
+
+client.on("guildMemberRemove", async (member) => {
+	if (!Check) return;
+	await Loader.guildMemberRemove(member);
 });
 
 module.exports = {

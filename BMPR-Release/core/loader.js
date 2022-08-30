@@ -4,7 +4,6 @@ let Rely = null;
 const fs = require("fs");
 const path = require("path");
 const zl = require("zip-lib");
-const User = reload("./api/user");
 
 const Function = {};
 let list = [];
@@ -35,7 +34,6 @@ async function PluginUnload(Plugin) {
 			list = list.splice(index, 1);
 			return;
 		}
-
 	await Console.main(`未發現 ${Plugin} 插件`, 3, "Core", "Loader");
 	return;
 }
@@ -56,7 +54,6 @@ async function PluginLoad(Plugin) {
 			if (!list.includes(LIST[index])) list.push(LIST[index]);
 			return;
 		}
-
 	await Console.main(`未發現 ${Plugin} 插件`, 3, "Core", "Loader");
 	return;
 }
@@ -114,7 +111,6 @@ async function init(bmpr) {
 		} catch (error) {
 			await Console.main(`${List[index]} 緩存 >> ${error}`, 4, "Core", "Loader");
 		}
-
 	await Load();
 	await RelyCheck();
 	await BMPR.Help.init(Function, list, BMPR.Config);
@@ -135,7 +131,6 @@ async function Init() {
 		} catch (error) {
 			await Console.main(`${list[index]} init 錯誤 >> ${error}`, 4, "Core", "Loader");
 		}
-
 }
 
 /**
@@ -185,8 +180,6 @@ async function PluginLoading(plugin) {
 					fs.copyFileSync(path.resolve(`./Plugin/lock/${plugin}/config.json`), path.resolve(`./Database/config/${plugin}.json`));
 				else
 					Config[plugin] = JSON.parse(fs.readFileSync(path.resolve(`./Database/config/${plugin}.json`)).toString());
-
-
 			await Console.main(`${plugin} 已加載 Package 插件 | 版本: ${Info.version}`, 1, "Core", "Loader");
 		} else {
 			Function[plugin] = reload(`../../Plugin/lock/${plugin}`);
@@ -195,7 +188,6 @@ async function PluginLoading(plugin) {
 					fs.writeFileSync(path.resolve(`./Database/config/${plugin.replace(".js", "")}.json`), JSON.stringify(Function[plugin].config));
 				else
 					Config[plugin] = JSON.parse(fs.readFileSync(path.resolve(`./Database/config/${plugin.replace(".js", "")}.json`)).toString());
-
 			await Console.main(`${plugin} 已加載 Single 插件 | 版本: ${Function[plugin].Info.version}`, 1, "Core", "Loader");
 		}
 	} catch (error) {
@@ -213,7 +205,6 @@ async function RelyCheck() {
 			await Console.main(`${list[index]} 插件 已卸載 >> ${error}`, 4, "Core", "Loader");
 			list.splice(index, 1);
 		}
-
 }
 
 /**
@@ -235,7 +226,6 @@ async function ready(client) {
 		} catch (error) {
 			await Console.main(`${list[index]} ready 錯誤 >> ${error}`, 4, "Core", "Loader");
 		}
-
 }
 
 /**
@@ -256,7 +246,6 @@ async function messageCreate(message) {
 		} catch (error) {
 			await Console.main(`${list[index]} messageCreate 錯誤 >> ${error}`, 4, "Core", "Loader");
 		}
-
 }
 
 async function messageReactionAdd(reaction, user) {
@@ -273,7 +262,6 @@ async function messageReactionAdd(reaction, user) {
 		} catch (error) {
 			await Console.main(`${list[index]} messageReactionAdd 錯誤 >> ${error}`, 4, "Core", "Loader");
 		}
-
 }
 
 async function messageReactionRemove(reaction, user) {
@@ -290,7 +278,6 @@ async function messageReactionRemove(reaction, user) {
 		} catch (error) {
 			await Console.main(`${list[index]} messageReactionRemove 錯誤 >> ${error}`, 4, "Core", "Loader");
 		}
-
 }
 
 async function channelCreate(channel) {
@@ -307,7 +294,6 @@ async function channelCreate(channel) {
 		} catch (error) {
 			await Console.main(`${list[index]} channelCreate 錯誤 >> ${error}`, 4, "Core", "Loader");
 		}
-
 }
 
 async function channelDelete(channel) {
@@ -324,7 +310,6 @@ async function channelDelete(channel) {
 		} catch (error) {
 			await Console.main(`${list[index]} channelDelete 錯誤 >> ${error}`, 4, "Core", "Loader");
 		}
-
 }
 
 async function messageDelete(message) {
@@ -341,7 +326,6 @@ async function messageDelete(message) {
 		} catch (error) {
 			await Console.main(`${list[index]} messageDelete 錯誤 >> ${error}`, 4, "Core", "Loader");
 		}
-
 }
 
 async function messageUpdate(message) {
@@ -358,7 +342,6 @@ async function messageUpdate(message) {
 		} catch (error) {
 			await Console.main(`${list[index]} messageUpdate 錯誤 >> ${error}`, 4, "Core", "Loader");
 		}
-
 }
 
 async function guildCreate(message) {
@@ -375,7 +358,6 @@ async function guildCreate(message) {
 		} catch (error) {
 			await Console.main(`${list[index]} guildCreate 錯誤 >> ${error}`, 4, "Core", "Loader");
 		}
-
 }
 
 async function guildDelete(message) {
@@ -392,7 +374,38 @@ async function guildDelete(message) {
 		} catch (error) {
 			await Console.main(`${list[index]} guildDelete 錯誤 >> ${error}`, 4, "Core", "Loader");
 		}
+}
 
+async function guildMemberAdd(member) {
+	for (let index = 0; index < list.length; index++)
+		try {
+			const Info = Function[list[index]].Info;
+			if (Info.events.includes("guildMemberAdd")) {
+				now(list[index]);
+				WatchdogL["guildMemberAdd"][list[index]] = new Date().getTime();
+				await Function[list[index]].guildMemberAdd(member);
+				await Console.main(`${list[index]} guildMemberAdd`, 0, "Core", "Loader");
+				delete WatchdogL["guildMemberAdd"][list[index]];
+			}
+		} catch (error) {
+			await Console.main(`${list[index]} guildMemberAdd 錯誤 >> ${error}`, 4, "Core", "Loader");
+		}
+}
+
+async function guildMemberRemove(member) {
+	for (let index = 0; index < list.length; index++)
+		try {
+			const Info = Function[list[index]].Info;
+			if (Info.events.includes("guildMemberRemove")) {
+				now(list[index]);
+				WatchdogL["guildMemberRemove"][list[index]] = new Date().getTime();
+				await Function[list[index]].guildMemberRemove(member);
+				await Console.main(`${list[index]} guildMemberRemove`, 0, "Core", "Loader");
+				delete WatchdogL["guildMemberRemove"][list[index]];
+			}
+		} catch (error) {
+			await Console.main(`${list[index]} guildMemberRemove 錯誤 >> ${error}`, 4, "Core", "Loader");
+		}
 }
 
 function now(plugin) {
@@ -418,4 +431,6 @@ module.exports = {
 	messageUpdate,
 	guildCreate,
 	guildDelete,
+	guildMemberAdd,
+	guildMemberRemove,
 };

@@ -48,7 +48,6 @@ async function main(msg, level, sender, fun, client) {
 			c = await client.channels.fetch(Config["Bot.Console"]).catch(err => {
 				main(`日誌輸出到 Discord 時發生異常 >> ${err}`, 4, "Core", "Console");
 			});
-
 		if (sender == undefined) sender = "N/A";
 		if (fun == undefined) fun = "Main";
 		if (level == undefined) level = 2;
@@ -67,19 +66,14 @@ async function main(msg, level, sender, fun, client) {
 		const now = new Date();
 		if (!fs.existsSync(path.resolve("./Database/log/")))
 			fs.mkdirSync("./Database/log/");
-
 		if (!fs.existsSync(path.resolve(`./Database/log/${(now.getMonth() + 1)}`)))
 			fs.mkdirSync(path.resolve(`./Database/log/${(now.getMonth() + 1)}`));
-
 		if (!fs.existsSync(path.resolve(`./Database/log/${(now.getMonth() + 1)}/${now.getDate()}`)))
 			fs.mkdirSync(path.resolve(`./Database/log/${(now.getMonth() + 1)}/${now.getDate()}`));
-
 		if (!fs.existsSync(path.resolve(`./Database/log/${(now.getMonth() + 1)}/${now.getDate()}`)))
 			fs.mkdirSync(path.resolve(`./Database/log/${(now.getMonth() + 1)}/${now.getDate()}`));
-
 		if (!fs.existsSync(path.resolve(`./Database/log/${(now.getMonth() + 1)}/${now.getDate()}/${now.getHours()}.log`)))
 			fs.writeFileSync(path.resolve(`./Database/log/${(now.getMonth() + 1)}/${now.getDate()}/${now.getHours()}.log`), "", "utf8");
-
 		let Log = fs.readFileSync(path.resolve(`./Database/log/${(now.getMonth() + 1)}/${now.getDate()}/${now.getHours()}.log`));
 		Log = `[${sender}][${await Time.Simple()}][${fun}/${Type}]: ${msg}\n` + Log;
 		fs.writeFileSync(path.resolve(`./Database/log/${(now.getMonth() + 1)}/${now.getDate()}/${now.getHours()}.log`), Log, "utf8");
@@ -94,7 +88,6 @@ async function main(msg, level, sender, fun, client) {
 				console.log("\x1b[33m" + `[${sender}][${await Time.Simple()}][${fun}]: ${msg}` + "\x1b[0m");
 			else
 				console.log("\x1b[32m" + `[${sender}][${await Time.Simple()}][${fun}]: ${msg}` + "\x1b[0m");
-
 			if (c == null) return;
 			if (cache == level) {
 				const MSG = await c.messages.fetch(msgID.id);
@@ -109,7 +102,6 @@ async function main(msg, level, sender, fun, client) {
 					await MSG.edit(await Structure.embed("**警告**\n\n```" + body + "```", "#FF9224"));
 				else
 					await MSG.edit(await Structure.embed("**訊息**\n\n```" + body + "```", "#00EC00"));
-
 				check();
 			} else {
 				cache = level;
@@ -124,7 +116,6 @@ async function main(msg, level, sender, fun, client) {
 					msgID = await c.send(await Structure.embed("**警告**\n\n```" + body + "```", "#FF9224"));
 				else
 					msgID = await c.send(await Structure.embed("**訊息**\n\n```" + body + "```", "#00EC00"));
-
 			}
 		}
 	} catch (err) {
@@ -153,7 +144,6 @@ process.stdin.on("data", async data => {
 function check() {
 	if (body.length > 400)
 		cache = -1;
-
 }
 
 function clear() {
@@ -168,7 +158,6 @@ setInterval(async () => {
 			update = data[0]["tag_name"];
 		else if (update != data[0]["tag_name"])
 			main(`BMPR 新版本!\n\n${data[0]["tag_name"]}\n更新日誌\n${data[0]["body"]}`, 2, "Core", "Console");
-
 	} catch (error) {
 	}
 }, 600000);
