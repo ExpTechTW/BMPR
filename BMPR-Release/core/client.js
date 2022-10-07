@@ -7,12 +7,13 @@ let Handler = null;
 let User = null;
 let Permission = null;
 let Rely = null;
-const { Client } = require("discord.js");
+const { Client, Partials } = require("discord.js");
 const fetch = require("node-fetch");
 const fs = require("fs");
 const path = require("path");
 const client = new Client({
-	intents: [
+	partials : [Partials.Message, Partials.Channel, Partials.Reaction],
+	intents  : [
 		"Guilds",
 		"GuildMembers",
 		"GuildBans",
