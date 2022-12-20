@@ -1,0 +1,15 @@
+{
+	"language": "zh_tw",
+	"check_update": true,
+	"log": {
+		"save": true,
+		"level": {
+			"track": false,
+			"debug": false,
+			"info": true,
+			"warn": true,
+			"error": true
+		}
+	},
+	"version": 1
+}
